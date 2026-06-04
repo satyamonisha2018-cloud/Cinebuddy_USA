@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cinebuddy — Analytics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:     #080c14;
+      --card:   #131d2e;
+      --border: rgba(255,255,255,.07);
+      --ink:    #f0f4ff;
+      --muted:  #6b7fa0;
+      --dim:    #3a4a62;
+      --amber:  #f59e0b;
+      --red:    #ef4444;
+      --blue:   #3b82f6;
+      --teal:   #14b8a6;
+      --purple: #a78bfa;
+      --green:  #22c55e;
+      --r:      14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+    button, select { font: inherit; }
+
+    /* ── Top Nav ── */
+    .topnav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; padding: 0 32px; height: 62px;
+      background: rgba(8,12,20,.94); border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-size: 18px; font-weight: 800; }
+    .brand-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg,#f59e0b,#ef4444);
+      display: grid; place-items: center; font-size: 18px;
+    }
+    .brand span { color: var(--amber); }
+    .nav-links { display: flex; gap: 4px; }
+    .nav-links a {
+      padding: 7px 14px; border-radius: 8px; color: var(--muted);
+      font-size: 13px; font-weight: 600; text-decoration: none; transition: .15s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--ink); background: rgba(255,255,255,.07); }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+    select {
+      height: 36px; padding: 0 12px;
+      background: rgba(255,255,255,.06); color: var(--ink);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-size: 13px; cursor: pointer; outline: none;
+    }
+    select option { background: #1a2540; }
+
+    /* ── Page ── */
+    .page { padding: 28px 32px 48px; max-width: 1440px; margin: 0 auto; }
+
+    /* ── Hero ── */
+    .hero { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 28px; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; }
+    h1 { font-size: clamp(24px,3vw,36px); font-weight: 800; letter-spacing: -.04em; line-height: 1.1; margin-bottom: 8px; }
+    .hero-sub { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+    .insight-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.25);
+      color: var(--amber); font-size: 12px; font-weight: 700;
+      padding: 5px 12px; border-radius: 999px; margin-top: 10px;
+    }
+    .dot-pulse { width:6px; height:6px; border-radius:50%; background:var(--amber); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    /* ── KPI strip — 4 cards ── */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 20px; }
+    .kpi {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 22px 22px 18px; position: relative; overflow: hidden;
+    }
+    .kpi::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      border-radius: var(--r) var(--r) 0 0;
+    }
+    .kpi.amber::before  { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+    .kpi.teal::before   { background: linear-gradient(90deg,#14b8a6,#22c55e); }
+    .kpi.purple::before { background: linear-gradient(90deg,#a78bfa,#ec4899); }
+    .kpi.red::before    { background: linear-gradient(90deg,#ef4444,#f97316); }
+    .kpi-icon { width:38px; height:38px; border-radius:10px; display:grid; place-items:center; font-size:17px; margin-bottom:16px; }
+    .kpi.amber  .kpi-icon { background: rgba(245,158,11,.12); }
+    .kpi.teal   .kpi-icon { background: rgba(20,184,166,.12); }
+    .kpi.purple .kpi-icon { background: rgba(167,139,250,.12); }
+    .kpi.red    .kpi-icon { background: rgba(239,68,68,.12); }
+    .kpi-label { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.07em; margin-bottom:8px; }
+    .kpi-val   { font-size:34px; font-weight:800; letter-spacing:-.04em; line-height:1; margin-bottom:8px; }
+    .kpi-sub   { font-size:12px; color:var(--muted); }
+
+    /* ── Grid ── */
+    .row { display:grid; gap:14px; margin-bottom:14px; }
+    .col-6-4 { grid-template-columns: 6fr 4fr; }
+    .col-4-6 { grid-template-columns: 4fr 6fr; }
+    .col-2   { grid-template-columns: 1fr 1fr; }
+    .col-3   { grid-template-columns: repeat(3,1fr); }
+
+    /* ── Panel ── */
+    .panel { background:var(--card); border:1px solid var(--border); border-radius:var(--r); overflow:hidden; }
+    .panel-head {
+      display:flex; align-items:center; justify-content:space-between;
+      padding:16px 20px; border-bottom:1px solid var(--border);
+    }
+    .panel-title { font-size:13px; font-weight:700; }
+    .panel-sub   { font-size:11.5px; color:var(--muted); margin-top:2px; }
+    .panel-badge { padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; background:rgba(255,255,255,.06); color:var(--muted); }
+    .panel-body  { padding:20px; }
+
+    /* ── Movie bar list ── */
+    .movie-bars { display:grid; gap:14px; }
+    .movie-bar-item { min-width:0; }
+    .movie-bar-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .movie-bar-name { font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    .movie-rank { width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-size:10px; font-weight:800; background:rgba(255,255,255,.06); color:var(--muted); }
+    .movie-bar-stat { font-size:13px; font-weight:800; }
+    .track { height:6px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+    .fill  { height:100%; border-radius:99px; }
+    .movie-bar-sub { font-size:11px; color:var(--muted); margin-top:5px; }
+
+    /* ── Theatre leaderboard ── */
+    .theatre-list { display:grid; gap:9px; }
+    .theatre-card {
+      display:flex; align-items:center; gap:13px;
+      padding:12px 14px; border-radius:10px;
+      background:rgba(255,255,255,.03); border:1px solid var(--border);
+    }
+    .th-rank { width:28px; height:28px; border-radius:8px; display:grid; place-items:center; font-size:12px; font-weight:800; flex-shrink:0; }
+    .r1 { background:rgba(245,158,11,.15); color:var(--amber); }
+    .r2 { background:rgba(148,163,184,.1);  color:#94a3b8; }
+    .r3 { background:rgba(180,120,60,.1);   color:#cd9b6a; }
+    .rn { background:rgba(255,255,255,.05); color:var(--muted); }
+    .th-info { flex:1; min-width:0; }
+    .th-name { font-size:13px; font-weight:700; }
+    .th-sub  { font-size:11px; color:var(--muted); margin-top:2px; }
+    .th-bar-outer { height:3px; background:rgba(255,255,255,.07); border-radius:99px; margin-top:6px; overflow:hidden; }
+    .th-bar-inner { height:100%; border-radius:99px; }
+    .th-right { text-align:right; flex-shrink:0; }
+    .th-tickets { font-size:17px; font-weight:800; letter-spacing:-.03em; }
+    .th-label   { font-size:10.5px; color:var(--muted); }
+
+    /* ── Heatmap ── */
+    .heat-wrap { overflow-x:auto; }
+    .heat-table { width:100%; border-collapse:separate; border-spacing:4px; font-size:12.5px; }
+    .heat-table th { padding:8px 12px; text-align:center; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
+    .heat-table th.row-h { text-align:left; }
+    .heat-table td { padding:8px 12px; border-radius:8px; text-align:center; font-weight:700; font-size:12.5px; }
+    .heat-table td.row-label { text-align:left; color:var(--muted); font-weight:600; background:transparent !important; white-space:nowrap; }
+    .heat-table td.total-cell { background:rgba(255,255,255,.06) !important; }
+
+    /* ── Daily best table ── */
+    .day-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .day-table th { padding:9px 12px; text-align:left; color:var(--muted); font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; border-bottom:1px solid var(--border); white-space:nowrap; }
+    .day-table td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:middle; }
+    .day-table tr:last-child td { border-bottom:none; }
+    .day-table tr:hover td { background:rgba(255,255,255,.02); }
+    .star-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; }
+    .star-badge.top  { background:rgba(245,158,11,.14); color:var(--amber); }
+    .star-badge.high { background:rgba(20,184,166,.12);  color:#5eead4; }
+    .star-badge.norm { background:rgba(255,255,255,.06);  color:var(--muted); }
+
+    /* ── Insight callouts ── */
+    .callout {
+      display:flex; gap:13px; align-items:flex-start;
+      padding:13px 15px; border-radius:10px;
+      background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.18);
+      margin-bottom:10px;
+    }
+    .callout:last-child { margin-bottom:0; }
+    .callout-icon { font-size:17px; flex-shrink:0; margin-top:1px; }
+    .callout-text { font-size:12.5px; line-height:1.6; color:#d1b86a; }
+    .callout-text strong { color:var(--amber); }
+
+    /* ── Monthly bar ── */
+    .month-summary { display:grid; gap:12px; }
+    .month-row { display:flex; align-items:center; gap:14px; }
+    .month-label { font-size:12.5px; font-weight:700; width:38px; flex-shrink:0; }
+    .month-track { flex:1; height:10px; background:rgba(255,255,255,.06); border-radius:99px; overflow:hidden; }
+    .month-fill  { height:100%; border-radius:99px; }
+    .month-val   { font-size:13px; font-weight:800; width:60px; text-align:right; flex-shrink:0; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width:6px; height:6px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:99px; }
+
+    @media (max-width:1050px) {
+      .col-6-4, .col-4-6 { grid-template-columns:1fr; }
+      .kpi-strip { grid-template-columns:1fr 1fr; }
+    }
+    @media (max-width:700px) {
+      .page { padding:16px 14px 40px; }
+      .topnav { padding:0 16px; }
+      .kpi-strip { grid-template-columns:1fr 1fr; }
+      .col-2, .col-3 { grid-template-columns:1fr; }
+      .nav-links { display:none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Top Nav ── -->
+<div class="topnav">
+  <div class="brand">
+    <div class="brand-icon">🎬</div>
+    Cine<span>buddy</span>
+  </div>
+  <nav class="nav-links">
+    <a href="#overview" class="active">Overview</a>
+    <a href="#movies">Movies</a>
+  </nav>
+  <div class="nav-right">
+    <select id="filterTheatre" onchange="applyFilters()">
+      <option value="all">All Theatres</option>
+    </select>
+    <select id="filterMonth" onchange="applyFilters()">
+      <option value="all">All Time (May 21+)</option>
+      <option value="2026-05">May 2026</option>
+      <option value="2026-06">Jun 2026</option>
+    </select>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ── Hero ── -->
+  <div class="hero" id="overview">
+    <div>
+      <div class="eyebrow">Cinebuddy · Ticket Analytics</div>
+      <h1>Sales Command Centre</h1>
+      <p class="hero-sub">Real data · May 21, 2026 onward · Wave App</p>
+      <div class="insight-chip"><div class="dot-pulse"></div><span id="heroInsight">Loading…</span></div>
+    </div>
+  </div>
+
+  <!-- ── 3 KPI Cards ── -->
+  <div class="kpi-strip">
+    <div class="kpi amber">
+      <div class="kpi-icon">💵</div>
+      <div class="kpi-label">Total Income</div>
+      <div class="kpi-val" id="kIncome">—</div>
+      <div class="kpi-sub" id="kIncomeSub">gross revenue</div>
+    </div>
+    <div class="kpi teal">
+      <div class="kpi-icon">🎟️</div>
+      <div class="kpi-label">Total Tickets Sold</div>
+      <div class="kpi-val" id="kTickets">—</div>
+      <div class="kpi-sub" id="kTicketsSub">across all theatres</div>
+    </div>
+    <div class="kpi purple" style="padding:0;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
+        <div style="padding:22px 16px 18px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.12)">🏆</div>
+          <div class="kpi-label">#1 Movie</div>
+          <div class="kpi-val" id="kTopMovie" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kTopMovieSub">by tickets sold</div>
+        </div>
+        <div style="padding:22px 16px 18px">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.07)">🥈</div>
+          <div class="kpi-label">#2 Movie</div>
+          <div class="kpi-val" id="kSecondMovie" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kSecondMovieSub">2nd highest</div>
+        </div>
+      </div>
+    </div>
+    <div class="kpi red" style="padding:0;overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
+        <div style="padding:22px 16px 18px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(239,68,68,.12)">📍</div>
+          <div class="kpi-label">#1 Theatre</div>
+          <div class="kpi-val" id="kTopTheatre" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kTopTheatreSub">most tickets sold</div>
+        </div>
+        <div style="padding:22px 16px 18px">
+          <div class="kpi-icon" style="background:rgba(239,68,68,.07)">🥈</div>
+          <div class="kpi-label">#2 Theatre</div>
+          <div class="kpi-val" id="kSecondTheatre" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kSecondTheatreSub">2nd highest</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 1: Trend + Monthly ── -->
+  <div class="row col-6-4" id="overview2">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Daily Ticket Sales Trend</div>
+          <div class="panel-sub">Tickets sold per day — May 21 onward</div>
+        </div>
+        <div class="panel-badge" id="trendBadge">—</div>
+      </div>
+      <div class="panel-body">
+        <div style="position:relative;height:220px">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Tickets by Month</div>
+          <div class="panel-sub">Volume comparison month over month</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="month-summary" id="monthSummary"></div>
+        <div style="position:relative;height:140px;margin-top:18px">
+          <canvas id="monthChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 2: Movie chart ── -->
+  <div class="row" id="movies">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Movie Performance</div>
+          <div class="panel-sub">Tickets &amp; revenue by title</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div class="panel-badge" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Tickets</div>
+          <div class="panel-badge" style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block"></span>Revenue $</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="position:relative;height:280px">
+          <canvas id="movieChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Row 3: Daily breakdown ── -->
+  <div class="row">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Movie Tickets — Daily Breakdown</div>
+          <div class="panel-sub">Stacked by movie · hover to see detail per day</div>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div style="position:relative;height:280px">
+          <canvas id="dayChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<script>
+if (!window.Chart) {
+  document.body.insertAdjacentHTML("afterbegin", `
+    <div style="position:sticky;top:0;z-index:9999;background:#7f1d1d;color:#fff;padding:12px 18px;font:600 14px Arial,sans-serif;text-align:center;">
+      Chart library did not load. Check internet connection or allow cdn.jsdelivr.net, then refresh this page.
+    </div>
+  `);
+}
+// ─────────────────────────────────────────────────────────────
+// REAL DATA — parsed from Wave CSV, Income rows, May 21+ only
+// ─────────────────────────────────────────────────────────────
+const RAW = [
+  // May 21
+  {date:"2026-05-21",theatre:"Starlight",        movie:"Dhrishyam 3",    tickets:3,  amount:25.50, by:"Vamsi"},
+  {date:"2026-05-21",theatre:"Commerce Center",  movie:"Dhrishyam 3",    tickets:3,  amount:27.00, by:"Monisha"},
+  {date:"2026-05-21",theatre:"Fox",              movie:"Peddi",           tickets:2,  amount:30.00, by:"Vamsi"},
+  {date:"2026-05-21",theatre:"Solomon",          movie:"Karuppu",         tickets:4,  amount:28.00, by:"Monisha"},
+  // May 22
+  {date:"2026-05-22",theatre:"Wilder",           movie:"Prada 2",         tickets:2,  amount:18.00, by:"Monisha"},
+  {date:"2026-05-22",theatre:"Shiloh",           movie:"Dhrishyam 3",     tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-05-22",theatre:"Perimeter Pointe", movie:"Dhrishyam 3",     tickets:1,  amount:10.00, by:"Vamsi"},
+  // May 23
+  {date:"2026-05-23",theatre:"Times Square",     movie:"Star Wars",       tickets:2,  amount:22.00, by:"Vamsi"},
+  {date:"2026-05-23",theatre:"Secaucus",         movie:"Star Wars",       tickets:2,  amount:18.00, by:"Vamsi"},
+  // May 24
+  {date:"2026-05-24",theatre:"Solomon",          movie:"Chand Mera Dil",  tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Village Park",     movie:"Karuppu",         tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Village Park",     movie:"Karuppu",         tickets:1,  amount:8.00,  by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Solomon",          movie:"Sheep Detective",  tickets:4,  amount:36.00, by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Greenwood",        movie:"Passenger",        tickets:1,  amount:8.00,  by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Hadley",           movie:"Star Wars",        tickets:5,  amount:45.00, by:"Vamsi"},
+  {date:"2026-05-24",theatre:"Commerce",         movie:"Dhrishyam 3",      tickets:3,  amount:27.00, by:"Monisha"},
+  // May 25
+  {date:"2026-05-25",theatre:"Commerce",         movie:"Dhrishyam 3",      tickets:3,  amount:21.00, by:"Vamsi"},
+  {date:"2026-05-25",theatre:"Fox",              movie:"Veerabhadrudu",    tickets:5,  amount:45.00, by:"Vamsi"},
+  {date:"2026-05-25",theatre:"Commerce",         movie:"Michael",          tickets:3,  amount:21.00, by:"Vamsi"},
+  // May 26
+  {date:"2026-05-26",theatre:"Shiloh",           movie:"Dhrishyam 3",      tickets:5,  amount:40.00, by:"Monisha"},
+  {date:"2026-05-26",theatre:"Solomon",          movie:"Obsession",         tickets:3,  amount:27.00, by:"Vamsi"},
+  {date:"2026-05-26",theatre:"Arnot Mall",       movie:"Obsession",         tickets:2,  amount:16.00, by:"Monisha"},
+  // May 27
+  {date:"2026-05-27",theatre:"Coldwater",        movie:"Peddi",             tickets:3,  amount:45.00, by:"Vamsi"},
+  // May 29
+  {date:"2026-05-29",theatre:"Peoples Plaza",    movie:"Obsession",         tickets:3,  amount:24.00, by:"Monisha"},
+  {date:"2026-05-29",theatre:"Secaucus",         movie:"Obsession",         tickets:2,  amount:17.00, by:"Vamsi"},
+  // May 30
+  {date:"2026-05-30",theatre:"Shiloh",           movie:"Obsession",         tickets:4,  amount:32.00, by:"Monisha"},
+  {date:"2026-05-30",theatre:"Huebner Oaks",     movie:"Star Wars",         tickets:5,  amount:30.00, by:"Vamsi"},
+  {date:"2026-05-30",theatre:"Deerfield",        movie:"Obsession",         tickets:1,  amount:8.00,  by:"Vamsi"},
+  {date:"2026-05-30",theatre:"Coldwater",        movie:"Obsession",         tickets:5,  amount:45.00, by:"Monisha"},
+  // May 31
+  {date:"2026-05-31",theatre:"Solomon",          movie:"Obsession",         tickets:3,  amount:27.00, by:"Monisha"},
+  {date:"2026-05-31",theatre:"Huebner",          movie:"Obsession",         tickets:2,  amount:12.00, by:"Vamsi"},
+  // Jun 1
+  {date:"2026-06-01",theatre:"Secaucus",         movie:"Pressure",          tickets:1,  amount:9.00,  by:"Vamsi"},
+  {date:"2026-06-01",theatre:"Waterford",        movie:"Backrooms",         tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-06-01",theatre:"Bellingham",       movie:"1:Nenokkadine",     tickets:2,  amount:12.00, by:"Vamsi"},
+  {date:"2026-06-01",theatre:"Bellingham",       movie:"Obsession",         tickets:1,  amount:9.00,  by:"Vamsi"},
+  {date:"2026-06-01",theatre:"Secaucus",         movie:"Backrooms",         tickets:1,  amount:9.00,  by:"Vamsi"},
+];
+
+const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
+
+// Auto-populate theatre dropdown from RAW data — always in sync
+(function populateTheatreDropdown() {
+  const theatres = [...new Set(RAW.map(r => r.theatre))].sort();
+  const sel = document.getElementById("filterTheatre");
+  theatres.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  });
+})();
+
+let activeData = [...RAW];
+
+function applyFilters() {
+  const th = document.getElementById("filterTheatre").value;
+  const mo = document.getElementById("filterMonth").value;
+  activeData = RAW.filter(r =>
+    (th==="all" || r.theatre===th) &&
+    (mo==="all" || r.date.startsWith(mo))
+  );
+  renderAll();
+}
+
+function sumByKey(arr, key) {
+  return arr.reduce((acc,r) => { acc[r[key]]=(acc[r[key]]||0)+r.tickets; return acc; }, {});
+}
+function sumAmtByKey(arr, key) {
+  return arr.reduce((acc,r) => { acc[r[key]]=(acc[r[key]]||0)+r.amount; return acc; }, {});
+}
+function sorted(obj) { return Object.entries(obj).sort((a,b)=>b[1]-a[1]); }
+
+// ── KPIs ──────────────────────────────────────────────────────
+function renderKPIs() {
+  const totalIncome  = activeData.reduce((s,r)=>s+r.amount,0);
+  const totalTickets = activeData.reduce((s,r)=>s+r.tickets,0);
+  const byMovie      = sumByKey(activeData,"movie");
+  const topMovie     = sorted(byMovie)[0];
+  // eslint-disable-next-line no-unused-vars (topMovie used below for hero insight)
+  const theatres     = new Set(activeData.map(r=>r.theatre)).size;
+
+  document.getElementById("kIncome").textContent    = "$"+totalIncome.toFixed(2);
+  document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
+  document.getElementById("kTickets").textContent    = totalTickets;
+  document.getElementById("kTicketsSub").textContent = `across ${theatres} theatres`;
+  const mvList    = sorted(byMovie);
+  const secMovie  = mvList[1];
+  document.getElementById("kTopMovie").textContent      = mvList[0]?.[0] ?? "—";
+  document.getElementById("kTopMovieSub").textContent   = mvList[0] ? `${mvList[0][1]} tickets sold` : "";
+  document.getElementById("kSecondMovie").textContent   = secMovie?.[0] ?? "—";
+  document.getElementById("kSecondMovieSub").textContent= secMovie ? `${secMovie[1]} tickets sold` : "";
+
+  const byTheatreKPI = sorted(sumByKey(activeData,"theatre"));
+  const topTh  = byTheatreKPI[0];
+  const secTh  = byTheatreKPI[1];
+  document.getElementById("kTopTheatre").textContent     = topTh?.[0] ?? "—";
+  document.getElementById("kTopTheatreSub").textContent  = topTh  ? `${topTh[1]} tickets sold`  : "";
+  document.getElementById("kSecondTheatre").textContent  = secTh?.[0] ?? "—";
+  document.getElementById("kSecondTheatreSub").textContent = secTh ? `${secTh[1]} tickets sold` : "";
+
+  document.getElementById("heroInsight").textContent =
+    topMovie ? `${topMovie[0]} leads with ${topMovie[1]} tickets — $${totalIncome.toFixed(2)} total revenue` : "No data";
+}
+
+// ── Trend Chart ───────────────────────────────────────────────
+let trendInst, monthInst;
+
+function renderTrend() {
+  if (!window.Chart) return;
+  const byDate = {};
+  activeData.forEach(r => { byDate[r.date]=(byDate[r.date]||0)+r.tickets; });
+  const labels = Object.keys(byDate).sort();
+  const vals   = labels.map(l=>byDate[l]);
+  const fmtLabel = d => { const p=d.split("-"); return `${p[2]}/${p[1]}`; };
+
+  document.getElementById("trendBadge").textContent = `${labels.length} days`;
+
+  const ctx = document.getElementById("trendChart").getContext("2d");
+  if (trendInst) trendInst.destroy();
+  const grad = ctx.createLinearGradient(0,0,0,220);
+  grad.addColorStop(0,"rgba(245,158,11,.18)");
+  grad.addColorStop(1,"rgba(245,158,11,0)");
+  trendInst = new Chart(ctx, {
+    type:"line",
+    data:{
+      labels: labels.map(fmtLabel),
+      datasets:[{data:vals, fill:true, borderColor:"#f59e0b", backgroundColor:grad,
+        tension:.4, pointRadius:4, pointBackgroundColor:"#f59e0b",
+        pointBorderColor:"#131d2e", pointBorderWidth:2, borderWidth:2.5}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:"#1a2540",borderColor:"rgba(245,158,11,.3)",borderWidth:1,titleColor:"#94a3b8",bodyColor:"#f0f4ff",padding:10}},
+      scales:{
+        x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10}},maxTicksLimit:12},
+        y:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ── Monthly chart ─────────────────────────────────────────────
+function renderMonthly() {
+  if (!window.Chart) return;
+  const byMonth = {};
+  activeData.forEach(r => {
+    const m = r.date.substring(0,7);
+    byMonth[m] = (byMonth[m]||0)+r.tickets;
+  });
+  const months = Object.keys(byMonth).sort();
+  const vals   = months.map(m=>byMonth[m]);
+  const maxVal = Math.max(...vals,1);
+  const labels = {"2026-05":"May","2026-06":"Jun","2026-07":"Jul"};
+
+  document.getElementById("monthSummary").innerHTML = months.map((m,i)=>`
+    <div class="month-row">
+      <div class="month-label">${labels[m]||m}</div>
+      <div class="month-track"><div class="month-fill" style="width:${(vals[i]/maxVal*100).toFixed(1)}%;background:${PALETTE[i%PALETTE.length]}"></div></div>
+      <div class="month-val" style="color:${PALETTE[i%PALETTE.length]}">${vals[i]}</div>
+    </div>`).join("");
+
+  const ctx = document.getElementById("monthChart").getContext("2d");
+  if (monthInst) monthInst.destroy();
+  monthInst = new Chart(ctx, {
+    type:"bar",
+    data:{
+      labels:months.map(m=>labels[m]||m),
+      datasets:[{data:vals, backgroundColor:PALETTE.slice(0,months.length), borderRadius:8, borderSkipped:false}]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{backgroundColor:"#1a2540",borderColor:"rgba(255,255,255,.1)",borderWidth:1,titleColor:"#94a3b8",bodyColor:"#f0f4ff",padding:10}},
+      scales:{
+        x:{grid:{display:false},ticks:{color:"#6b7fa0",font:{size:11,weight:"bold"}}},
+        y:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10}},beginAtZero:true}
+      }
+    }
+  });
+}
+
+// ── Movie Performance Chart ────────────────────────────────────
+let movieChartInst;
+function renderMovieBars() {
+  if (!window.Chart) return;
+  const byMovie  = sumByKey(activeData,"movie");
+  const byMovieA = sumAmtByKey(activeData,"movie");
+  const entries  = sorted(byMovie);
+  const labels   = entries.map(e=>e[0]);
+  const tickets  = entries.map(e=>e[1]);
+  const revenue  = entries.map(e=>+(byMovieA[e[0]]||0).toFixed(2));
+
+  const ctx = document.getElementById("movieChart").getContext("2d");
+  if (movieChartInst) movieChartInst.destroy();
+
+  movieChartInst = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Tickets",
+          data: tickets,
+          backgroundColor: labels.map((_,i) => PALETTE[i % PALETTE.length] + "cc"),
+          borderColor:     labels.map((_,i) => PALETTE[i % PALETTE.length]),
+          borderWidth: 1.5,
+          borderRadius: 8,
+          borderSkipped: false,
+          yAxisID: "yTickets"
+        },
+        {
+          label: "Revenue ($)",
+          data: revenue,
+          type: "line",
+          borderColor: "#3b82f6",
+          backgroundColor: "rgba(59,130,246,.08)",
+          pointBackgroundColor: "#3b82f6",
+          pointBorderColor: "#131d2e",
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          tension: .35,
+          fill: true,
+          borderWidth: 2,
+          yAxisID: "yRevenue"
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: "#1a2540", borderColor: "rgba(255,255,255,.1)", borderWidth: 1,
+          titleColor: "#94a3b8", bodyColor: "#f0f4ff", padding: 12,
+          callbacks: {
+            label: ctx => ctx.dataset.label === "Revenue ($)"
+              ? ` $${ctx.parsed.y.toFixed(2)}`
+              : ` ${ctx.parsed.y} tickets`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#6b7fa0", font: { size: 11, weight: "bold" } }
+        },
+        yTickets: {
+          position: "left",
+          grid: { color: "rgba(255,255,255,.04)" },
+          ticks: { color: "#6b7fa0", font: { size: 10 } },
+          beginAtZero: true,
+          title: { display: true, text: "Tickets", color: "#6b7fa0", font: { size: 10 } }
+        },
+        yRevenue: {
+          position: "right",
+          grid: { display: false },
+          ticks: { color: "#3b82f6", font: { size: 10 }, callback: v => "$"+v },
+          beginAtZero: true,
+          title: { display: true, text: "Revenue", color: "#3b82f6", font: { size: 10 } }
+        }
+      }
+    }
+  });
+}
+
+
+// ── Top movie per day — single bar colored by winning movie ────
+let dayChartInst;
+
+// Inline plugin: draws the movie name above each bar
+const dayLabelPlugin = {
+  id: "dayLabels",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    chart.data.datasets.forEach((dataset, i) => {
+      chart.getDatasetMeta(i).data.forEach((bar, j) => {
+        if (dataset.data[j] == null) return;
+        const label = dataset.label.length > 10 ? dataset.label.slice(0, 9) + "…" : dataset.label;
+        ctx.save();
+        ctx.fillStyle = "#f0f4ff";
+        ctx.font = "bold 9px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
+        ctx.fillText(label, bar.x, bar.y - 4);
+        ctx.restore();
+      });
+    });
+  }
+};
+
+function renderDayTable() {
+  if (!window.Chart) return;
+  const byDay = {};
+  activeData.forEach(r => {
+    if (!byDay[r.date]) byDay[r.date] = {};
+    byDay[r.date][r.movie] = (byDay[r.date][r.movie] || 0) + r.tickets;
+  });
+
+  const days    = Object.keys(byDay).sort();
+  const movies  = [...new Set(activeData.map(r => r.movie))].sort();
+  const fmtDate = d => { const p=d.split("-"); const mo=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return `${mo[+p[1]]} ${+p[2]}`; };
+
+  // Find the winner (most tickets) for each day
+  const winner = {}; // date -> movie name
+  days.forEach(d => {
+    winner[d] = Object.entries(byDay[d]).sort((a,b) => b[1]-a[1])[0][0];
+  });
+
+  // One dataset per movie — only shows a bar on days it won, null otherwise
+  const datasets = movies.map((movie, i) => ({
+    label: movie,
+    data: days.map(d => winner[d] === movie ? byDay[d][movie] : null),
+    backgroundColor: PALETTE[i % PALETTE.length] + "cc",
+    borderColor:     PALETTE[i % PALETTE.length],
+    borderWidth: 1.5,
+    borderRadius: 8,
+    borderSkipped: false
+  }));
+
+  const ctx = document.getElementById("dayChart").getContext("2d");
+  if (dayChartInst) dayChartInst.destroy();
+
+  dayChartInst = new Chart(ctx, {
+    type: "bar",
+    data: { labels: days.map(fmtDate), datasets },
+    plugins: [dayLabelPlugin],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: "bottom",
+          labels: {
+            color: "#94a3b8", font: { size: 10 }, padding: 12,
+            boxWidth: 10, boxHeight: 10,
+            // only show movies that actually won at least one day
+            filter: item => datasets[item.datasetIndex].data.some(v => v !== null)
+          }
+        },
+        tooltip: {
+          backgroundColor: "#1a2540", borderColor: "rgba(255,255,255,.1)", borderWidth: 1,
+          titleColor: "#f0f4ff", bodyColor: "#94a3b8", padding: 12,
+          callbacks: {
+            title: items => fmtDate(days[items[0].dataIndex]),
+            label: ctx => ` Top movie: ${ctx.dataset.label} — ${ctx.parsed.y} tickets`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { color: "#6b7fa0", font: { size: 10 } }
+        },
+        y: {
+          grid: { color: "rgba(255,255,255,.04)" },
+          ticks: { color: "#6b7fa0", font: { size: 10 } },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+
+
+// ── Render all ────────────────────────────────────────────────
+function renderAll(){
+  renderKPIs();
+  renderTrend();
+  renderMonthly();
+  renderMovieBars();
+  renderDayTable();
+}
+
+renderAll();
+</script>
+</body>
+</html>
