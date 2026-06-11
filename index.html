@@ -407,22 +407,6 @@
     </div>
   </div>
 
-  <!-- ── Row 3: Daily breakdown ── -->
-  <div class="row">
-    <div class="panel">
-      <div class="panel-head">
-        <div>
-          <div class="panel-title">Movie Tickets — Daily Breakdown</div>
-          <div class="panel-sub">Stacked by movie · hover to see detail per day</div>
-        </div>
-      </div>
-      <div class="panel-body">
-        <div style="position:relative;height:280px">
-          <canvas id="dayChart"></canvas>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
 </div>
@@ -785,103 +769,6 @@ function renderMovieBars() {
 }
 
 
-// ── Top movie per day — single bar colored by winning movie ────
-let dayChartInst;
-
-// Inline plugin: draws the movie name above each bar
-const dayLabelPlugin = {
-  id: "dayLabels",
-  afterDatasetsDraw(chart) {
-    const { ctx } = chart;
-    chart.data.datasets.forEach((dataset, i) => {
-      chart.getDatasetMeta(i).data.forEach((bar, j) => {
-        if (dataset.data[j] == null) return;
-        const label = dataset.label.length > 10 ? dataset.label.slice(0, 9) + "…" : dataset.label;
-        ctx.save();
-        ctx.fillStyle = "#f0f4ff";
-        ctx.font = "bold 9px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-        ctx.fillText(label, bar.x, bar.y - 4);
-        ctx.restore();
-      });
-    });
-  }
-};
-
-function renderDayTable() {
-  if (!window.Chart) return;
-  const byDay = {};
-  activeData.forEach(r => {
-    if (!byDay[r.date]) byDay[r.date] = {};
-    byDay[r.date][r.movie] = (byDay[r.date][r.movie] || 0) + r.tickets;
-  });
-
-  const days    = Object.keys(byDay).sort();
-  const movies  = [...new Set(activeData.map(r => r.movie))].sort();
-  const fmtDate = d => { const p=d.split("-"); const mo=["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; return `${mo[+p[1]]} ${+p[2]}`; };
-
-  // Find the winner (most tickets) for each day
-  const winner = {}; // date -> movie name
-  days.forEach(d => {
-    winner[d] = Object.entries(byDay[d]).sort((a,b) => b[1]-a[1])[0][0];
-  });
-
-  // One dataset per movie — only shows a bar on days it won, null otherwise
-  const datasets = movies.map((movie, i) => ({
-    label: movie,
-    data: days.map(d => winner[d] === movie ? byDay[d][movie] : null),
-    backgroundColor: PALETTE[i % PALETTE.length] + "cc",
-    borderColor:     PALETTE[i % PALETTE.length],
-    borderWidth: 1.5,
-    borderRadius: 8,
-    borderSkipped: false
-  }));
-
-  const ctx = document.getElementById("dayChart").getContext("2d");
-  if (dayChartInst) dayChartInst.destroy();
-
-  dayChartInst = new Chart(ctx, {
-    type: "bar",
-    data: { labels: days.map(fmtDate), datasets },
-    plugins: [dayLabelPlugin],
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            color: "#94a3b8", font: { size: 10 }, padding: 12,
-            boxWidth: 10, boxHeight: 10,
-            // only show movies that actually won at least one day
-            filter: item => datasets[item.datasetIndex].data.some(v => v !== null)
-          }
-        },
-        tooltip: {
-          backgroundColor: "#1a2540", borderColor: "rgba(255,255,255,.1)", borderWidth: 1,
-          titleColor: "#f0f4ff", bodyColor: "#94a3b8", padding: 12,
-          callbacks: {
-            title: items => fmtDate(days[items[0].dataIndex]),
-            label: ctx => ` Top movie: ${ctx.dataset.label} — ${ctx.parsed.y} tickets`
-          }
-        }
-      },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: { color: "#6b7fa0", font: { size: 10 } }
-        },
-        y: {
-          grid: { color: "rgba(255,255,255,.04)" },
-          ticks: { color: "#6b7fa0", font: { size: 10 } },
-          beginAtZero: true
-        }
-      }
-    }
-  });
-}
-
-
 
 // ── Render all ────────────────────────────────────────────────
 function renderAll(){
@@ -889,7 +776,6 @@ function renderAll(){
   renderTrend();
   renderMonthly();
   renderMovieBars();
-  renderDayTable();
 }
 
 // Load custom entries saved in localStorage, then reset activeData to include them
