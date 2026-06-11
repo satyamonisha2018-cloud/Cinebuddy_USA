@@ -186,6 +186,52 @@
     .month-fill  { height:100%; border-radius:99px; }
     .month-val   { font-size:13px; font-weight:800; width:60px; text-align:right; flex-shrink:0; }
 
+    /* ── Add Transaction Modal ── */
+    .modal-overlay {
+      display:none; position:fixed; inset:0; z-index:999;
+      background:rgba(0,0,0,.7); backdrop-filter:blur(5px);
+      align-items:center; justify-content:center;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal-box {
+      background:#131d2e; border:1px solid rgba(255,255,255,.12);
+      border-radius:18px; padding:28px 28px 24px; width:min(480px,95vw);
+      box-shadow:0 24px 60px rgba(0,0,0,.6);
+    }
+    .modal-title { font-size:17px; font-weight:800; margin-bottom:3px; }
+    .modal-sub { font-size:12.5px; color:var(--muted); margin-bottom:22px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-field { display:flex; flex-direction:column; gap:6px; }
+    .form-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+    .form-input {
+      height:40px; padding:0 12px;
+      background:rgba(255,255,255,.05); color:var(--ink);
+      border:1px solid rgba(255,255,255,.1); border-radius:9px;
+      font:inherit; font-size:13.5px; outline:none; transition:border-color .15s;
+    }
+    .form-input:focus { border-color:rgba(245,158,11,.5); background:rgba(255,255,255,.07); }
+    .form-input option { background:#1a2540; }
+    .form-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
+    .btn { height:38px; padding:0 18px; border-radius:9px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; border:none; transition:.15s; }
+    .btn-ghost { background:rgba(255,255,255,.06); color:var(--muted); }
+    .btn-ghost:hover { background:rgba(255,255,255,.1); color:var(--ink); }
+    .btn-amber { background:var(--amber); color:#000; }
+    .btn-amber:hover { background:#fbbf24; }
+    .fab {
+      position:fixed; bottom:28px; right:28px; z-index:100;
+      width:52px; height:52px; border-radius:50%; border:none;
+      background:var(--amber); color:#000; font-size:26px; line-height:1;
+      cursor:pointer; box-shadow:0 4px 22px rgba(245,158,11,.45);
+      display:grid; place-items:center; transition:.2s;
+    }
+    .fab:hover { transform:scale(1.08); box-shadow:0 6px 30px rgba(245,158,11,.6); }
+    .save-notice {
+      display:none; font-size:12px; color:#4ade80; font-weight:700;
+      padding:6px 12px; background:rgba(34,197,94,.1); border-radius:7px;
+      border:1px solid rgba(34,197,94,.2); align-self:center;
+    }
+    .save-notice.show { display:block; }
+
     /* ── Scrollbar ── */
     ::-webkit-scrollbar { width:6px; height:6px; }
     ::-webkit-scrollbar-track { background:transparent; }
@@ -255,34 +301,46 @@
       <div class="kpi-sub" id="kTicketsSub">across all theatres</div>
     </div>
     <div class="kpi purple" style="padding:0;overflow:hidden">
-      <div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
-        <div style="padding:22px 16px 18px;border-right:1px solid rgba(255,255,255,.07)">
-          <div class="kpi-icon" style="background:rgba(167,139,250,.12)">🏆</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;height:100%">
+        <div style="padding:16px 10px 14px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.12);width:30px;height:30px;font-size:14px">🏆</div>
           <div class="kpi-label">#1 Movie</div>
-          <div class="kpi-val" id="kTopMovie" style="font-size:18px;letter-spacing:-.02em">—</div>
-          <div class="kpi-sub" id="kTopMovieSub">by tickets sold</div>
+          <div class="kpi-val" id="kTopMovie" style="font-size:14px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kTopMovieSub">by tickets</div>
         </div>
-        <div style="padding:22px 16px 18px">
-          <div class="kpi-icon" style="background:rgba(167,139,250,.07)">🥈</div>
+        <div style="padding:16px 10px 14px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.07);width:30px;height:30px;font-size:14px">🥈</div>
           <div class="kpi-label">#2 Movie</div>
-          <div class="kpi-val" id="kSecondMovie" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-val" id="kSecondMovie" style="font-size:14px;letter-spacing:-.02em">—</div>
           <div class="kpi-sub" id="kSecondMovieSub">2nd highest</div>
+        </div>
+        <div style="padding:16px 10px 14px">
+          <div class="kpi-icon" style="background:rgba(167,139,250,.04);width:30px;height:30px;font-size:14px">🥉</div>
+          <div class="kpi-label">#3 Movie</div>
+          <div class="kpi-val" id="kThirdMovie" style="font-size:14px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kThirdMovieSub">3rd highest</div>
         </div>
       </div>
     </div>
     <div class="kpi red" style="padding:0;overflow:hidden">
-      <div style="display:grid;grid-template-columns:1fr 1fr;height:100%">
-        <div style="padding:22px 16px 18px;border-right:1px solid rgba(255,255,255,.07)">
-          <div class="kpi-icon" style="background:rgba(239,68,68,.12)">📍</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;height:100%">
+        <div style="padding:16px 10px 14px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(239,68,68,.12);width:30px;height:30px;font-size:14px">📍</div>
           <div class="kpi-label">#1 Theatre</div>
-          <div class="kpi-val" id="kTopTheatre" style="font-size:18px;letter-spacing:-.02em">—</div>
-          <div class="kpi-sub" id="kTopTheatreSub">most tickets sold</div>
+          <div class="kpi-val" id="kTopTheatre" style="font-size:14px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kTopTheatreSub">most tickets</div>
         </div>
-        <div style="padding:22px 16px 18px">
-          <div class="kpi-icon" style="background:rgba(239,68,68,.07)">🥈</div>
+        <div style="padding:16px 10px 14px;border-right:1px solid rgba(255,255,255,.07)">
+          <div class="kpi-icon" style="background:rgba(239,68,68,.07);width:30px;height:30px;font-size:14px">🥈</div>
           <div class="kpi-label">#2 Theatre</div>
-          <div class="kpi-val" id="kSecondTheatre" style="font-size:18px;letter-spacing:-.02em">—</div>
+          <div class="kpi-val" id="kSecondTheatre" style="font-size:14px;letter-spacing:-.02em">—</div>
           <div class="kpi-sub" id="kSecondTheatreSub">2nd highest</div>
+        </div>
+        <div style="padding:16px 10px 14px">
+          <div class="kpi-icon" style="background:rgba(239,68,68,.04);width:30px;height:30px;font-size:14px">🥉</div>
+          <div class="kpi-label">#3 Theatre</div>
+          <div class="kpi-val" id="kThirdTheatre" style="font-size:14px;letter-spacing:-.02em">—</div>
+          <div class="kpi-sub" id="kThirdTheatreSub">3rd highest</div>
         </div>
       </div>
     </div>
@@ -502,20 +560,26 @@ function renderKPIs() {
   document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
   document.getElementById("kTickets").textContent    = totalTickets;
   document.getElementById("kTicketsSub").textContent = `across ${theatres} theatres`;
-  const mvList    = sorted(byMovie);
-  const secMovie  = mvList[1];
-  document.getElementById("kTopMovie").textContent      = mvList[0]?.[0] ?? "—";
-  document.getElementById("kTopMovieSub").textContent   = mvList[0] ? `${mvList[0][1]} tickets sold` : "";
-  document.getElementById("kSecondMovie").textContent   = secMovie?.[0] ?? "—";
-  document.getElementById("kSecondMovieSub").textContent= secMovie ? `${secMovie[1]} tickets sold` : "";
+  const mvList     = sorted(byMovie);
+  const secMovie   = mvList[1];
+  const thirdMovie = mvList[2];
+  document.getElementById("kTopMovie").textContent       = mvList[0]?.[0] ?? "—";
+  document.getElementById("kTopMovieSub").textContent    = mvList[0] ? `${mvList[0][1]} tickets` : "";
+  document.getElementById("kSecondMovie").textContent    = secMovie?.[0] ?? "—";
+  document.getElementById("kSecondMovieSub").textContent = secMovie ? `${secMovie[1]} tickets` : "";
+  document.getElementById("kThirdMovie").textContent     = thirdMovie?.[0] ?? "—";
+  document.getElementById("kThirdMovieSub").textContent  = thirdMovie ? `${thirdMovie[1]} tickets` : "";
 
   const byTheatreKPI = sorted(sumByKey(activeData,"theatre"));
-  const topTh  = byTheatreKPI[0];
-  const secTh  = byTheatreKPI[1];
-  document.getElementById("kTopTheatre").textContent     = topTh?.[0] ?? "—";
-  document.getElementById("kTopTheatreSub").textContent  = topTh  ? `${topTh[1]} tickets sold`  : "";
-  document.getElementById("kSecondTheatre").textContent  = secTh?.[0] ?? "—";
-  document.getElementById("kSecondTheatreSub").textContent = secTh ? `${secTh[1]} tickets sold` : "";
+  const topTh    = byTheatreKPI[0];
+  const secTh    = byTheatreKPI[1];
+  const thirdTh  = byTheatreKPI[2];
+  document.getElementById("kTopTheatre").textContent       = topTh?.[0] ?? "—";
+  document.getElementById("kTopTheatreSub").textContent    = topTh   ? `${topTh[1]} tickets`   : "";
+  document.getElementById("kSecondTheatre").textContent    = secTh?.[0] ?? "—";
+  document.getElementById("kSecondTheatreSub").textContent = secTh   ? `${secTh[1]} tickets`   : "";
+  document.getElementById("kThirdTheatre").textContent     = thirdTh?.[0] ?? "—";
+  document.getElementById("kThirdTheatreSub").textContent  = thirdTh ? `${thirdTh[1]} tickets`  : "";
 
   document.getElementById("heroInsight").textContent =
     topMovie ? `${topMovie[0]} leads with ${topMovie[1]} tickets — $${totalIncome.toFixed(2)} total revenue` : "No data";
@@ -530,7 +594,12 @@ function renderTrend() {
   activeData.forEach(r => { byDate[r.date]=(byDate[r.date]||0)+r.tickets; });
   const labels = Object.keys(byDate).sort();
   const vals   = labels.map(l=>byDate[l]);
-  const fmtLabel = d => { const p=d.split("-"); return `${p[2]}/${p[1]}`; };
+  const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  const fmtLabel = d => {
+    const dt = new Date(d + "T12:00:00");
+    const p = d.split("-");
+    return `${DAYS[dt.getDay()]} ${+p[2]}/${+p[1]}`;
+  };
 
   document.getElementById("trendBadge").textContent = `${labels.length} days`;
 
@@ -549,9 +618,24 @@ function renderTrend() {
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:"#1a2540",borderColor:"rgba(245,158,11,.3)",borderWidth:1,titleColor:"#94a3b8",bodyColor:"#f0f4ff",padding:10}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:"#1a2540",borderColor:"rgba(245,158,11,.3)",borderWidth:1,
+          titleColor:"#94a3b8",bodyColor:"#f0f4ff",padding:10,
+          callbacks:{
+            title: items => {
+              const raw = labels[items[0].dataIndex];
+              const dt  = new Date(raw + "T12:00:00");
+              const DAY_FULL = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+              const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+              return `${DAY_FULL[dt.getDay()]}, ${dt.getDate()} ${MONTH_SHORT[dt.getMonth()]} ${dt.getFullYear()}`;
+            }
+          }
+        }
+      },
       scales:{
-        x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10}},maxTicksLimit:12},
+        x:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10},maxRotation:45,minRotation:30},maxTicksLimit:14},
         y:{grid:{color:"rgba(255,255,255,.04)"},ticks:{color:"#6b7fa0",font:{size:10}},beginAtZero:true}
       }
     }
@@ -790,7 +874,122 @@ function renderAll(){
   renderDayTable();
 }
 
+// Load custom entries saved in localStorage, then reset activeData to include them
+(function loadCustomEntries() {
+  const saved = JSON.parse(localStorage.getItem("cb_custom") || "[]");
+  if (!saved.length) return;
+  saved.forEach(r => RAW.push(r));
+  activeData = [...RAW];
+  // Re-populate theatre dropdown so custom theatres appear in the filter
+  const sel = document.getElementById("filterTheatre");
+  const theatres = [...new Set(RAW.map(r => r.theatre))].sort();
+  sel.innerHTML = '<option value="all">All Theatres</option>';
+  theatres.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o); });
+})();
+
 renderAll();
+
+// ── Add Transaction ────────────────────────────────────────────
+function populateDataLists() {
+  const theatres = [...new Set(RAW.map(r => r.theatre))].sort();
+  const movies   = [...new Set(RAW.map(r => r.movie))].sort();
+  document.getElementById("theatreList").innerHTML = theatres.map(t => `<option value="${t}">`).join("");
+  document.getElementById("movieList").innerHTML   = movies.map(m => `<option value="${m}">`).join("");
+}
+
+function openModal() {
+  populateDataLists();
+  document.getElementById("fDate").value = new Date().toISOString().split("T")[0];
+  document.getElementById("addModal").classList.add("open");
+  document.getElementById("fTheatre").focus();
+}
+function closeModal() {
+  document.getElementById("addModal").classList.remove("open");
+  document.getElementById("addForm").reset();
+}
+function submitSale(e) {
+  e.preventDefault();
+  const entry = {
+    date:    document.getElementById("fDate").value,
+    theatre: document.getElementById("fTheatre").value.trim(),
+    movie:   document.getElementById("fMovie").value.trim(),
+    tickets: parseInt(document.getElementById("fTickets").value, 10),
+    amount:  parseFloat(parseFloat(document.getElementById("fAmount").value).toFixed(2)),
+    by:      document.getElementById("fBuyer").value
+  };
+  if (!entry.date || !entry.theatre || !entry.movie || !entry.tickets || !entry.amount) return;
+  RAW.push(entry);
+  const saved = JSON.parse(localStorage.getItem("cb_custom") || "[]");
+  saved.push(entry);
+  localStorage.setItem("cb_custom", JSON.stringify(saved));
+
+  // Re-populate theatre dropdown so new theatres appear in the filter
+  const sel = document.getElementById("filterTheatre");
+  const cur = sel.value;
+  const theatres = [...new Set(RAW.map(r => r.theatre))].sort();
+  sel.innerHTML = '<option value="all">All Theatres</option>';
+  theatres.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o); });
+  sel.value = cur;
+
+  // Show success notice while modal is still visible, then close
+  const notice = document.getElementById("saveNotice");
+  notice.textContent = `✓ "${entry.movie}" @ ${entry.theatre} saved`;
+  notice.classList.add("show");
+  setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
+
+  applyFilters();
+}
+
 </script>
+
+<!-- ── FAB ── -->
+<button class="fab" onclick="openModal()" title="Add new sale">+</button>
+
+<!-- ── Add Transaction Modal ── -->
+<div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-title">Add New Sale</div>
+    <div class="modal-sub">Saved locally in your browser — reflects instantly across all charts &amp; KPIs.</div>
+    <form id="addForm" onsubmit="submitSale(event)">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label" for="fDate">Date</label>
+          <input class="form-input" type="date" id="fDate" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="fBuyer">Buyer</label>
+          <select class="form-input" id="fBuyer" required>
+            <option value="Vamsi">Vamsi</option>
+            <option value="Monisha">Monisha</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="fTheatre">Theatre</label>
+          <input class="form-input" type="text" id="fTheatre" list="theatreList" autocomplete="off" placeholder="e.g. Solomon" required>
+          <datalist id="theatreList"></datalist>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="fMovie">Movie</label>
+          <input class="form-input" type="text" id="fMovie" list="movieList" autocomplete="off" placeholder="e.g. Obsession" required>
+          <datalist id="movieList"></datalist>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="fTickets">Tickets</label>
+          <input class="form-input" type="number" id="fTickets" min="1" max="50" step="1" placeholder="3" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="fAmount">Amount ($)</label>
+          <input class="form-input" type="number" id="fAmount" min="0.01" step="0.01" placeholder="27.00" required>
+        </div>
+      </div>
+      <div class="form-actions">
+        <span class="save-notice" id="saveNotice"></span>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-amber">Add Sale</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 </body>
 </html>
