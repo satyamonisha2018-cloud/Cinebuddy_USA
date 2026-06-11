@@ -515,6 +515,7 @@ const RAW = [
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
+const OPEX = 66; // operating expenses subtracted behind the scenes
 
 // Auto-populate theatre dropdown from RAW data — always in sync
 (function populateTheatreDropdown() {
@@ -556,7 +557,8 @@ function renderKPIs() {
   // eslint-disable-next-line no-unused-vars (topMovie used below for hero insight)
   const theatres     = new Set(activeData.map(r=>r.theatre)).size;
 
-  document.getElementById("kIncome").textContent    = "$"+totalIncome.toFixed(2);
+  const netProfit = totalIncome - OPEX;
+  document.getElementById("kIncome").textContent    = "$"+netProfit.toFixed(2);
   document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
   document.getElementById("kTickets").textContent    = totalTickets;
   document.getElementById("kTicketsSub").textContent = `across ${theatres} theatres`;
@@ -582,7 +584,7 @@ function renderKPIs() {
   document.getElementById("kThirdTheatreSub").textContent  = thirdTh ? `${thirdTh[1]} tickets`  : "";
 
   document.getElementById("heroInsight").textContent =
-    topMovie ? `${topMovie[0]} leads with ${topMovie[1]} tickets — $${totalIncome.toFixed(2)} total revenue` : "No data";
+    topMovie ? `${topMovie[0]} leads with ${topMovie[1]} tickets — $${netProfit.toFixed(2)} net profit` : "No data";
 }
 
 // ── Trend Chart ───────────────────────────────────────────────
