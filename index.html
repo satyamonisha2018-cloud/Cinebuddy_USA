@@ -199,7 +199,15 @@
       box-shadow:0 24px 60px rgba(0,0,0,.6);
     }
     .modal-title { font-size:17px; font-weight:800; margin-bottom:3px; }
-    .modal-sub { font-size:12.5px; color:var(--muted); margin-bottom:22px; }
+    .modal-sub { font-size:12.5px; color:var(--muted); margin-bottom:16px; }
+    .modal-tabs { display:flex; gap:6px; margin-bottom:20px; }
+    .modal-tab {
+      flex:1; height:34px; border:1px solid rgba(255,255,255,.1); border-radius:8px;
+      background:rgba(255,255,255,.04); color:var(--muted);
+      font:inherit; font-size:12.5px; font-weight:700; cursor:pointer; transition:.15s;
+    }
+    .modal-tab:hover { background:rgba(255,255,255,.08); color:var(--ink); }
+    .modal-tab.active { background:var(--amber); color:#000; border-color:var(--amber); }
     .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     .form-field { display:flex; flex-direction:column; gap:6px; }
     .form-label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
@@ -515,7 +523,14 @@ const RAW = [
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
-const OPEX = 66; // operating expenses subtracted behind the scenes
+
+const EXPENSES_KEY = "cb_expenses";
+let EXPENSES = JSON.parse(localStorage.getItem(EXPENSES_KEY) || "[]");
+if (!EXPENSES.length) {
+  // Seed with the existing $66 operating expense
+  EXPENSES = [{ date: "2026-06-08", description: "Operating Expenses", amount: 66 }];
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(EXPENSES));
+}
 
 // Auto-populate theatre dropdown from RAW data — always in sync
 (function populateTheatreDropdown() {
@@ -557,7 +572,8 @@ function renderKPIs() {
   // eslint-disable-next-line no-unused-vars (topMovie used below for hero insight)
   const theatres     = new Set(activeData.map(r=>r.theatre)).size;
 
-  const netProfit = totalIncome - OPEX;
+  const totalExpenses = EXPENSES.reduce((s, e) => s + e.amount, 0);
+  const netProfit = totalIncome - totalExpenses;
   document.getElementById("kIncome").textContent    = "$"+netProfit.toFixed(2);
   document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
   document.getElementById("kTickets").textContent    = totalTickets;
@@ -899,15 +915,31 @@ function populateDataLists() {
   document.getElementById("movieList").innerHTML   = movies.map(m => `<option value="${m}">`).join("");
 }
 
+function switchTab(tab) {
+  const isSale = tab === "sale";
+  document.getElementById("addForm").style.display      = isSale ? "" : "none";
+  document.getElementById("expenseForm").style.display  = isSale ? "none" : "";
+  document.getElementById("tabSale").classList.toggle("active", isSale);
+  document.getElementById("tabExpense").classList.toggle("active", !isSale);
+  document.getElementById("modalTitle").textContent = isSale ? "Add New Sale" : "Add Expense";
+  document.getElementById("modalSub").textContent   = isSale
+    ? "Saved locally — reflects instantly across all charts & KPIs."
+    : "Expense is deducted from displayed income automatically.";
+  const today = new Date().toISOString().split("T")[0];
+  if (isSale) { document.getElementById("fDate").value = today; }
+  else         { document.getElementById("eDate").value = today; }
+}
+
 function openModal() {
   populateDataLists();
-  document.getElementById("fDate").value = new Date().toISOString().split("T")[0];
+  switchTab("sale");
   document.getElementById("addModal").classList.add("open");
   document.getElementById("fTheatre").focus();
 }
 function closeModal() {
   document.getElementById("addModal").classList.remove("open");
   document.getElementById("addForm").reset();
+  document.getElementById("expenseForm").reset();
 }
 function submitSale(e) {
   e.preventDefault();
@@ -942,6 +974,25 @@ function submitSale(e) {
   applyFilters();
 }
 
+function submitExpense(e) {
+  e.preventDefault();
+  const entry = {
+    date:        document.getElementById("eDate").value,
+    description: document.getElementById("eDesc").value.trim(),
+    amount:      parseFloat(parseFloat(document.getElementById("eAmount").value).toFixed(2))
+  };
+  if (!entry.date || !entry.description || !entry.amount) return;
+  EXPENSES.push(entry);
+  localStorage.setItem(EXPENSES_KEY, JSON.stringify(EXPENSES));
+
+  const notice = document.getElementById("expenseNotice");
+  notice.textContent = `✓ $${entry.amount.toFixed(2)} expense saved`;
+  notice.classList.add("show");
+  setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
+
+  applyFilters();
+}
+
 </script>
 
 <!-- ── FAB ── -->
@@ -950,8 +1001,16 @@ function submitSale(e) {
 <!-- ── Add Transaction Modal ── -->
 <div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <div class="modal-title">Add New Sale</div>
-    <div class="modal-sub">Saved locally in your browser — reflects instantly across all charts &amp; KPIs.</div>
+    <div class="modal-title" id="modalTitle">Add New Sale</div>
+    <div class="modal-sub" id="modalSub">Saved locally — reflects instantly across all charts &amp; KPIs.</div>
+
+    <!-- Tab toggle -->
+    <div class="modal-tabs">
+      <button type="button" class="modal-tab active" id="tabSale"    onclick="switchTab('sale')">New Sale</button>
+      <button type="button" class="modal-tab"        id="tabExpense" onclick="switchTab('expense')">New Expense</button>
+    </div>
+
+    <!-- ── Sale form ── -->
     <form id="addForm" onsubmit="submitSale(event)">
       <div class="form-grid">
         <div class="form-field">
@@ -988,6 +1047,29 @@ function submitSale(e) {
         <span class="save-notice" id="saveNotice"></span>
         <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
         <button type="submit" class="btn btn-amber">Add Sale</button>
+      </div>
+    </form>
+
+    <!-- ── Expense form ── -->
+    <form id="expenseForm" style="display:none" onsubmit="submitExpense(event)">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label" for="eDate">Date</label>
+          <input class="form-input" type="date" id="eDate" required>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="eAmount">Amount ($)</label>
+          <input class="form-input" type="number" id="eAmount" min="0.01" step="0.01" placeholder="e.g. 15.00" required>
+        </div>
+        <div class="form-field" style="grid-column:1/-1">
+          <label class="form-label" for="eDesc">Description</label>
+          <input class="form-input" type="text" id="eDesc" placeholder="e.g. Regal Subscription" required>
+        </div>
+      </div>
+      <div class="form-actions">
+        <span class="save-notice" id="expenseNotice"></span>
+        <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-amber">Add Expense</button>
       </div>
     </form>
   </div>
