@@ -912,6 +912,11 @@ function submitExpense(e) {
   applyFilters();
 }
 
+// Default to the latest month present in the data
+(function setDefaultMonth() {
+  const latest = [...new Set([...RAW, ...CUSTOM_SALES].map(r => r.date.substring(0, 7)))].sort().pop();
+  if (latest) document.getElementById("filterMonth").value = latest;
+})();
 applyFilters();
 
 </script>
