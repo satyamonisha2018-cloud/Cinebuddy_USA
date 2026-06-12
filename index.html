@@ -647,10 +647,11 @@ function renderTrend() {
 // ── Monthly chart ─────────────────────────────────────────────
 function renderMonthly() {
   if (!window.Chart) return;
-  const byMonth = {};
+  const byMonth = {}, amtByMonth = {};
   activeData.forEach(r => {
     const m = r.date.substring(0,7);
-    byMonth[m] = (byMonth[m]||0)+r.tickets;
+    byMonth[m]    = (byMonth[m]    || 0) + r.tickets;
+    amtByMonth[m] = (amtByMonth[m] || 0) + r.amount;
   });
   const months = Object.keys(byMonth).sort();
   const vals   = months.map(m=>byMonth[m]);
@@ -661,7 +662,7 @@ function renderMonthly() {
     <div class="month-row">
       <div class="month-label">${labels[m]||m}</div>
       <div class="month-track"><div class="month-fill" style="width:${(vals[i]/maxVal*100).toFixed(1)}%;background:${PALETTE[i%PALETTE.length]}"></div></div>
-      <div class="month-val" style="color:${PALETTE[i%PALETTE.length]}">${vals[i]}</div>
+      <div class="month-val" style="color:${PALETTE[i%PALETTE.length]}">${vals[i]} <span style="color:var(--muted);font-size:11px;font-weight:500">$${amtByMonth[m].toFixed(0)}</span></div>
     </div>`).join("");
 
   const ctx = document.getElementById("monthChart").getContext("2d");
