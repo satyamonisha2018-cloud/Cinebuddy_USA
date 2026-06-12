@@ -503,10 +503,19 @@ auth.onAuthStateChanged(user => {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("appWrap").style.display     = "";
     document.getElementById("signOutBtn").textContent    = user.email;
+    // Render base RAW data immediately while Firebase loads
+    activeData = [...RAW];
+    renderAll();
     startListeners();
   } else {
     document.getElementById("loginScreen").style.display = "flex";
     document.getElementById("appWrap").style.display     = "none";
+    // Clean up so re-login works cleanly
+    FB_CUSTOM       = [];
+    FB_EXPENSES     = [];
+    listenersStarted = false;
+    db.ref("transactions").off();
+    db.ref("expenses").off();
   }
 });
 
@@ -974,6 +983,21 @@ let listenersStarted = false;
 function startListeners() {
   if (listenersStarted) return;
   listenersStarted = true;
+
+  // One-time migration: move any data previously saved in localStorage into Firebase
+  (function migrateLocalStorage() {
+    const oldSales = JSON.parse(localStorage.getItem("cb_custom") || "[]");
+    if (oldSales.length) {
+      oldSales.forEach(r => db.ref("transactions").push(r));
+      localStorage.removeItem("cb_custom");
+    }
+    const oldExpenses = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
+    // Skip the seeded $66 — it lives in BASE_EXPENSES now
+    oldExpenses
+      .filter(e => !(e.description === "Operating Expenses" && e.amount === 66))
+      .forEach(e => db.ref("expenses").push(e));
+    if (oldExpenses.length) localStorage.removeItem("cb_expenses");
+  })();
 
   db.ref("transactions").on("value", snap => {
     FB_CUSTOM = [];
