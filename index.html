@@ -8,9 +8,6 @@
   <meta http-equiv="Expires" content="0"/>
   <title>Cinebuddy — Analytics</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
   <style>
     :root {
       --bg:     #080c14;
@@ -192,47 +189,6 @@
     .month-fill  { height:100%; border-radius:99px; }
     .month-val   { font-size:13px; font-weight:800; width:60px; text-align:right; flex-shrink:0; }
 
-    /* ── Login Screen ── */
-    #loginScreen {
-      position:fixed; inset:0; z-index:10000; background:var(--bg);
-      display:flex; align-items:center; justify-content:center;
-    }
-    .login-box {
-      background:var(--card); border:1px solid rgba(255,255,255,.1);
-      border-radius:20px; padding:40px 36px; width:min(380px,92vw);
-      text-align:center; box-shadow:0 24px 64px rgba(0,0,0,.6);
-    }
-    .login-brand-icon {
-      width:56px; height:56px; border-radius:14px; margin:0 auto 14px;
-      background:linear-gradient(135deg,#f59e0b,#ef4444);
-      display:grid; place-items:center; font-size:26px;
-    }
-    .login-title { font-size:22px; font-weight:800; margin-bottom:4px; }
-    .login-sub   { font-size:12.5px; color:var(--muted); margin-bottom:28px; }
-    .login-input {
-      width:100%; height:44px; padding:0 14px; margin-bottom:12px;
-      background:rgba(255,255,255,.05); color:var(--ink);
-      border:1px solid rgba(255,255,255,.1); border-radius:10px;
-      font:inherit; font-size:14px; outline:none; box-sizing:border-box;
-      transition:border-color .15s;
-    }
-    .login-input:focus { border-color:rgba(245,158,11,.5); }
-    .login-btn {
-      width:100%; height:44px; border:none; border-radius:10px;
-      background:var(--amber); color:#000; font:inherit;
-      font-size:14px; font-weight:800; cursor:pointer; transition:.15s;
-    }
-    .login-btn:hover:not(:disabled) { background:#fbbf24; }
-    .login-btn:disabled { opacity:.6; cursor:not-allowed; }
-    .login-error { font-size:12.5px; color:#ef4444; min-height:18px; margin-top:10px; }
-    .signout-btn {
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
-      color:var(--muted); border-radius:7px; padding:0 12px; height:32px;
-      font:inherit; font-size:12px; cursor:pointer; transition:.15s;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;
-    }
-    .signout-btn:hover { background:rgba(255,255,255,.1); color:var(--ink); }
-
     /* ── Add Transaction Modal ── */
     .modal-overlay {
       display:none; position:fixed; inset:0; z-index:999;
@@ -307,24 +263,6 @@
 </head>
 <body>
 
-<!-- ── Login Screen ── -->
-<div id="loginScreen">
-  <div class="login-box">
-    <div class="login-brand-icon">🎬</div>
-    <div class="login-title">Cine<span style="color:var(--amber)">buddy</span></div>
-    <div class="login-sub">Sign in to access the dashboard</div>
-    <input class="login-input" type="email"    id="lEmail" placeholder="Email address"
-           onkeydown="if(event.key==='Enter')document.getElementById('lPass').focus()">
-    <input class="login-input" type="password" id="lPass"  placeholder="Password"
-           onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" id="lBtn" onclick="doLogin()">Sign In</button>
-    <div class="login-error" id="lError"></div>
-  </div>
-</div>
-
-<!-- ── App (hidden until signed in) ── -->
-<div id="appWrap" style="display:none">
-
 <!-- ── Top Nav ── -->
 <div class="topnav">
   <div class="brand">
@@ -344,7 +282,6 @@
       <option value="2026-05">May 2026</option>
       <option value="2026-06">Jun 2026</option>
     </select>
-    <button class="signout-btn" id="signOutBtn" onclick="doSignOut()" title="Sign out">Sign out</button>
   </div>
 </div>
 
@@ -485,57 +422,6 @@ if (!window.Chart) {
     </div>
   `);
 }
-// ── Firebase ───────────────────────────────────────────────────
-firebase.initializeApp({
-  apiKey:            "AIzaSyBkp03866RdrnU3c4S8GP4JpbVrp8fKB0s",
-  authDomain:        "cinebuddy-4c041.firebaseapp.com",
-  databaseURL:       "https://cinebuddy-4c041-default-rtdb.firebaseio.com",
-  projectId:         "cinebuddy-4c041",
-  storageBucket:     "cinebuddy-4c041.firebasestorage.app",
-  messagingSenderId: "235736003024",
-  appId:             "1:235736003024:web:7f6925868b99bcbc9289d5"
-});
-const auth = firebase.auth();
-const db   = firebase.database();
-
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("appWrap").style.display     = "";
-    document.getElementById("signOutBtn").textContent    = user.email;
-    // Render base RAW data immediately while Firebase loads
-    activeData = [...RAW];
-    renderAll();
-    startListeners();
-  } else {
-    document.getElementById("loginScreen").style.display = "flex";
-    document.getElementById("appWrap").style.display     = "none";
-    // Clean up so re-login works cleanly
-    FB_CUSTOM       = [];
-    FB_EXPENSES     = [];
-    listenersStarted = false;
-    db.ref("transactions").off();
-    db.ref("expenses").off();
-  }
-});
-
-function doLogin() {
-  const email = document.getElementById("lEmail").value.trim();
-  const pass  = document.getElementById("lPass").value;
-  const btn   = document.getElementById("lBtn");
-  const err   = document.getElementById("lError");
-  err.textContent  = "";
-  btn.disabled     = true;
-  btn.textContent  = "Signing in…";
-  auth.signInWithEmailAndPassword(email, pass).catch(() => {
-    err.textContent = "Incorrect email or password.";
-    btn.disabled    = false;
-    btn.textContent = "Sign In";
-  });
-}
-
-function doSignOut() { auth.signOut(); }
-
 // ─────────────────────────────────────────────────────────────
 // REAL DATA — parsed from Wave CSV, Income rows, May 21+ only
 // ─────────────────────────────────────────────────────────────
@@ -621,17 +507,26 @@ const RAW = [
   {date:"2026-06-10",theatre:"Huebner",          movie:"Peddi",             tickets:4,  amount:44.00, by:"Vamsi"},
   // Jun 11
   {date:"2026-06-11",theatre:"Shiloh",           movie:"Main Vaapas Aunga", tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-06-11",theatre:"Starlight",        movie:"Star Wars",          tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-06-11",theatre:"Greenwood",        movie:"Disclosure Day",     tickets:5,  amount:42.00, by:"Vamsi"},
+  {date:"2026-06-11",theatre:"Huebner",          movie:"Disclosure Day",     tickets:2,  amount:16.00, by:"Vamsi"},
+  // Jun 12
+  {date:"2026-06-12",theatre:"Solomon",          movie:"Obsession",          tickets:2,  amount:13.00, by:"Vamsi"},
+  {date:"2026-06-12",theatre:"Solomon",          movie:"Peddi",              tickets:2,  amount:21.00, by:"Vamsi"},
+  {date:"2026-06-12",theatre:"Battery Park",     movie:"Obsession",          tickets:4,  amount:44.00, by:"Monisha"},
+  {date:"2026-06-12",theatre:"Secaucus",         movie:"Obsession",          tickets:4,  amount:36.00, by:"Monisha"},
+  {date:"2026-06-12",theatre:"Greenwood",        movie:"Peddi",              tickets:1,  amount:11.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
 
-const BASE_EXPENSES = [{ date: "2026-06-08", description: "Operating Expenses", amount: 66 }];
-let FB_EXPENSES = [];  // loaded from Firebase
-let FB_CUSTOM   = [];  // transactions added via the form, loaded from Firebase
+const BASE_EXPENSES  = [{ date: "2026-06-08", description: "Operating Expenses", amount: 66 }];
+let CUSTOM_EXPENSES  = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
+let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
 
-// Auto-populate theatre dropdown from RAW data — always in sync
+// Auto-populate theatre dropdown from all data — always in sync
 (function populateTheatreDropdown() {
-  const theatres = [...new Set(RAW.map(r => r.theatre))].sort();
+  const theatres = [...new Set([...RAW, ...CUSTOM_SALES].map(r => r.theatre))].sort();
   const sel = document.getElementById("filterTheatre");
   theatres.forEach(t => {
     const opt = document.createElement("option");
@@ -645,7 +540,7 @@ let activeData = [...RAW];
 function applyFilters() {
   const th  = document.getElementById("filterTheatre").value;
   const mo  = document.getElementById("filterMonth").value;
-  const all = [...RAW, ...FB_CUSTOM];
+  const all = [...RAW, ...CUSTOM_SALES];
   activeData = all.filter(r =>
     (th==="all" || r.theatre===th) &&
     (mo==="all" || r.date.startsWith(mo))
@@ -670,7 +565,7 @@ function renderKPIs() {
   // eslint-disable-next-line no-unused-vars (topMovie used below for hero insight)
   const theatres     = new Set(activeData.map(r=>r.theatre)).size;
 
-  const totalExpenses = [...BASE_EXPENSES, ...FB_EXPENSES].reduce((s, e) => s + e.amount, 0);
+  const totalExpenses = [...BASE_EXPENSES, ...CUSTOM_EXPENSES].reduce((s, e) => s + e.amount, 0);
   const netProfit = totalIncome - totalExpenses;
   document.getElementById("kIncome").textContent    = "$"+netProfit.toFixed(2);
   document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
@@ -896,7 +791,7 @@ function renderAll(){
 
 // ── Add Transaction ────────────────────────────────────────────
 function populateDataLists() {
-  const all      = [...RAW, ...FB_CUSTOM];
+  const all      = [...RAW, ...CUSTOM_SALES];
   const theatres = [...new Set(all.map(r => r.theatre))].sort();
   const movies   = [...new Set(all.map(r => r.movie))].sort();
   document.getElementById("theatreList").innerHTML = theatres.map(t => `<option value="${t}">`).join("");
@@ -911,8 +806,8 @@ function switchTab(tab) {
   document.getElementById("tabExpense").classList.toggle("active", !isSale);
   document.getElementById("modalTitle").textContent = isSale ? "Add New Sale" : "Add Expense";
   document.getElementById("modalSub").textContent   = isSale
-    ? "Synced to Firebase — visible to everyone instantly."
-    : "Expense is deducted from displayed income for all viewers.";
+    ? "Saved locally — reflects instantly across all charts & KPIs."
+    : "Expense is deducted from displayed income.";
   const today = new Date().toISOString().split("T")[0];
   if (isSale) { document.getElementById("fDate").value = today; }
   else         { document.getElementById("eDate").value = today; }
@@ -940,19 +835,21 @@ function submitSale(e) {
     by:      document.getElementById("fBuyer").value
   };
   if (!entry.date || !entry.theatre || !entry.movie || !entry.tickets || !entry.amount) return;
-  const btn = e.submitter;
-  btn.disabled = true; btn.textContent = "Saving…";
-  db.ref("transactions").push(entry)
-    .then(() => {
-      const notice = document.getElementById("saveNotice");
-      notice.textContent = `✓ "${entry.movie}" @ ${entry.theatre} saved`;
-      notice.classList.add("show");
-      setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
-    })
-    .catch(() => {
-      document.getElementById("saveNotice").textContent = "Error saving. Try again.";
-    })
-    .finally(() => { btn.disabled = false; btn.textContent = "Add Sale"; });
+  CUSTOM_SALES.push(entry);
+  localStorage.setItem("cb_custom", JSON.stringify(CUSTOM_SALES));
+  // Keep theatre dropdown in sync
+  const all      = [...RAW, ...CUSTOM_SALES];
+  const sel      = document.getElementById("filterTheatre");
+  const cur      = sel.value;
+  const theatres = [...new Set(all.map(r => r.theatre))].sort();
+  sel.innerHTML  = '<option value="all">All Theatres</option>';
+  theatres.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o); });
+  sel.value = cur;
+  const notice = document.getElementById("saveNotice");
+  notice.textContent = `✓ "${entry.movie}" @ ${entry.theatre} saved`;
+  notice.classList.add("show");
+  setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
+  applyFilters();
 }
 
 function submitExpense(e) {
@@ -963,69 +860,21 @@ function submitExpense(e) {
     amount:      parseFloat(parseFloat(document.getElementById("eAmount").value).toFixed(2))
   };
   if (!entry.date || !entry.description || !entry.amount) return;
-  const btn = e.submitter;
-  btn.disabled = true; btn.textContent = "Saving…";
-  db.ref("expenses").push(entry)
-    .then(() => {
-      const notice = document.getElementById("expenseNotice");
-      notice.textContent = `✓ $${entry.amount.toFixed(2)} expense saved`;
-      notice.classList.add("show");
-      setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
-    })
-    .catch(() => {
-      document.getElementById("expenseNotice").textContent = "Error saving. Try again.";
-    })
-    .finally(() => { btn.disabled = false; btn.textContent = "Add Expense"; });
+  CUSTOM_EXPENSES.push(entry);
+  localStorage.setItem("cb_expenses", JSON.stringify(CUSTOM_EXPENSES));
+  const notice = document.getElementById("expenseNotice");
+  notice.textContent = `✓ $${entry.amount.toFixed(2)} expense saved`;
+  notice.classList.add("show");
+  setTimeout(() => { notice.classList.remove("show"); closeModal(); }, 1800);
+  applyFilters();
 }
 
-// ── Firebase real-time listeners (called once after sign-in) ───
-let listenersStarted = false;
-function startListeners() {
-  if (listenersStarted) return;
-  listenersStarted = true;
-
-  // One-time migration: move any data previously saved in localStorage into Firebase
-  (function migrateLocalStorage() {
-    const oldSales = JSON.parse(localStorage.getItem("cb_custom") || "[]");
-    if (oldSales.length) {
-      oldSales.forEach(r => db.ref("transactions").push(r));
-      localStorage.removeItem("cb_custom");
-    }
-    const oldExpenses = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
-    // Skip the seeded $66 — it lives in BASE_EXPENSES now
-    oldExpenses
-      .filter(e => !(e.description === "Operating Expenses" && e.amount === 66))
-      .forEach(e => db.ref("expenses").push(e));
-    if (oldExpenses.length) localStorage.removeItem("cb_expenses");
-  })();
-
-  db.ref("transactions").on("value", snap => {
-    FB_CUSTOM = [];
-    snap.forEach(child => FB_CUSTOM.push(child.val()));
-    // Keep theatre dropdown in sync
-    const all      = [...RAW, ...FB_CUSTOM];
-    const sel      = document.getElementById("filterTheatre");
-    const cur      = sel.value;
-    const theatres = [...new Set(all.map(r => r.theatre))].sort();
-    sel.innerHTML  = '<option value="all">All Theatres</option>';
-    theatres.forEach(t => { const o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o); });
-    sel.value = cur;
-    applyFilters();
-  });
-
-  db.ref("expenses").on("value", snap => {
-    FB_EXPENSES = [];
-    snap.forEach(child => FB_EXPENSES.push(child.val()));
-    applyFilters();
-  });
-}
+applyFilters();
 
 </script>
 
 <!-- ── FAB ── -->
 <button class="fab" onclick="openModal()" title="Add new sale">+</button>
-
-</div><!-- end #appWrap -->
 
 <!-- ── Add Transaction Modal ── -->
 <div class="modal-overlay" id="addModal" onclick="if(event.target===this)closeModal()">
