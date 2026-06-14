@@ -589,7 +589,10 @@ function renderKPIs() {
   // eslint-disable-next-line no-unused-vars (topMovie used below for hero insight)
   const theatres     = new Set(activeData.map(r=>r.theatre)).size;
 
-  const totalExpenses = [...BASE_EXPENSES, ...CUSTOM_EXPENSES].reduce((s, e) => s + e.amount, 0);
+  const mo = document.getElementById("filterMonth").value;
+  const totalExpenses = [...BASE_EXPENSES, ...CUSTOM_EXPENSES]
+    .filter(e => mo === "all" || e.date.startsWith(mo))
+    .reduce((s, e) => s + e.amount, 0);
   const netProfit = totalIncome - totalExpenses;
   document.getElementById("kIncome").textContent       = "$"+netProfit.toFixed(2);
   document.getElementById("kGrossIncome").textContent  = "$"+totalIncome.toFixed(2);
