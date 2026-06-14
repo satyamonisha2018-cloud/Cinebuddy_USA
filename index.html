@@ -303,7 +303,11 @@
       <div class="kpi-icon">💵</div>
       <div class="kpi-label">Total Income</div>
       <div class="kpi-val" id="kIncome">—</div>
-      <div class="kpi-sub" id="kIncomeSub">gross revenue</div>
+      <div style="display:flex;gap:12px;margin:5px 0 3px">
+        <span style="font-size:11px;color:var(--muted)">Gross&nbsp;<span id="kGrossIncome" style="color:#22c55e;font-weight:700">—</span></span>
+        <span style="font-size:11px;color:var(--muted)">Exp&nbsp;<span id="kExpenses" style="color:#ef4444;font-weight:700">—</span></span>
+      </div>
+      <div class="kpi-sub" id="kIncomeSub">net after expenses</div>
     </div>
     <div class="kpi teal">
       <div class="kpi-icon">🎟️</div>
@@ -580,8 +584,10 @@ function renderKPIs() {
 
   const totalExpenses = [...BASE_EXPENSES, ...CUSTOM_EXPENSES].reduce((s, e) => s + e.amount, 0);
   const netProfit = totalIncome - totalExpenses;
-  document.getElementById("kIncome").textContent    = "$"+netProfit.toFixed(2);
-  document.getElementById("kIncomeSub").textContent  = `${theatres} theatres · ${activeData.length} transactions`;
+  document.getElementById("kIncome").textContent       = "$"+netProfit.toFixed(2);
+  document.getElementById("kGrossIncome").textContent  = "$"+totalIncome.toFixed(2);
+  document.getElementById("kExpenses").textContent     = "-$"+totalExpenses.toFixed(2);
+  document.getElementById("kIncomeSub").textContent    = `${theatres} theatres · ${activeData.length} transactions`;
   document.getElementById("kTickets").textContent    = totalTickets;
   document.getElementById("kTicketsSub").textContent = `across ${theatres} theatres`;
   const mvList     = sorted(byMovie);
