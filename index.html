@@ -647,14 +647,26 @@ let trendInst, monthInst;
 
 function renderTrend() {
   if (!window.Chart) return;
-  const byDate = {}, byDateAmt = {};
+  const byDate = {}, byDateAmt = {}, byDateMovie = {};
   activeData.forEach(r => {
     byDate[r.date]    = (byDate[r.date]    || 0) + r.tickets;
     byDateAmt[r.date] = (byDateAmt[r.date] || 0) + r.amount;
+    if (!byDateMovie[r.date]) byDateMovie[r.date] = {};
+    byDateMovie[r.date][r.movie] = (byDateMovie[r.date][r.movie] || 0) + r.tickets;
   });
   const labels  = Object.keys(byDate).sort();
   const vals    = labels.map(l => byDate[l]);
   const amtVals = labels.map(l => byDateAmt[l]);
+
+  // Top movie per day by ticket count
+  const topMovieByDate = {};
+  labels.forEach(d => {
+    const top = Object.entries(byDateMovie[d] || {}).sort((a,b) => b[1]-a[1])[0];
+    topMovieByDate[d] = top ? top[0] : null;
+  });
+  const allMovieNames = [...new Set(activeData.map(r => r.movie))].sort();
+  const movieColor = m => PALETTE[allMovieNames.indexOf(m) % PALETTE.length];
+
   const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   const fmtLabel = d => {
     const dt = new Date(d + "T12:00:00");
@@ -689,6 +701,12 @@ function renderTrend() {
           fill:true, borderColor:"#3b82f6", backgroundColor:gradBlue,
           tension:.4, pointRadius:4, pointBackgroundColor:"#3b82f6",
           pointBorderColor:"#131d2e", pointBorderWidth:2, borderWidth:2.5
+        },
+        {
+          // Phantom dataset — invisible on chart, injects top-movie row into tooltip
+          label:"Top Movie", data:labels.map(()=>0), yAxisID:"yTickets",
+          pointRadius:0, borderWidth:0,
+          borderColor:"transparent", backgroundColor:"transparent", showLine:false
         }
       ]
     },
@@ -698,7 +716,10 @@ function renderTrend() {
       plugins:{
         legend:{
           display:true,
-          labels:{ color:"#6b7fa0", font:{size:11}, boxWidth:12, padding:16 }
+          labels:{
+            color:"#6b7fa0", font:{size:11}, boxWidth:12, padding:16,
+            filter: item => item.datasetIndex !== 2
+          }
         },
         tooltip:{
           backgroundColor:"#1a2540",borderColor:"rgba(245,158,11,.3)",borderWidth:1,
@@ -711,9 +732,26 @@ function renderTrend() {
               const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
               return `${DAY_FULL[dt.getDay()]}, ${dt.getDate()} ${MONTH_SHORT[dt.getMonth()]} ${dt.getFullYear()}`;
             },
-            label: ctx => ctx.dataset.label === "Revenue ($)"
-              ? ` $${ctx.parsed.y.toFixed(2)}`
-              : ` ${ctx.parsed.y} tickets`
+            label: ctx => {
+              if (ctx.datasetIndex === 2) {
+                const m = topMovieByDate[labels[ctx.dataIndex]];
+                return m ? ` ${m}` : null;
+              }
+              return ctx.dataset.label === "Revenue ($)"
+                ? ` $${ctx.parsed.y.toFixed(2)}`
+                : ` ${ctx.parsed.y} tickets`;
+            },
+            labelColor: ctx => {
+              if (ctx.datasetIndex === 2) {
+                const m = topMovieByDate[labels[ctx.dataIndex]];
+                const c = m ? movieColor(m) : "#6b7fa0";
+                return { borderColor: c, backgroundColor: c, borderRadius: 3 };
+              }
+            },
+            filter: item => {
+              if (item.datasetIndex === 2) return !!topMovieByDate[labels[item.dataIndex]];
+              return true;
+            }
           }
         }
       },
