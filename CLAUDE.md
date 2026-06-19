@@ -8,7 +8,7 @@ Data comes from **Wave App CSV exports** (Income rows only). The dashboard is a 
 
 ---
 
-## Current Data (May 21 – Jun 1, 2026)
+## Current Data (May 21 – Jun 18, 2026)
 
 ### Raw Ticket Data
 
