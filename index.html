@@ -734,8 +734,10 @@ function renderTrend() {
             },
             label: ctx => {
               if (ctx.datasetIndex === 2) {
-                const m = topMovieByDate[labels[ctx.dataIndex]];
-                return m ? ` ${m}` : null;
+                const d = labels[ctx.dataIndex];
+                const m = topMovieByDate[d];
+                if (!m) return null;
+                return ` ${m} (${byDateMovie[d][m]})`;
               }
               return ctx.dataset.label === "Revenue ($)"
                 ? ` $${ctx.parsed.y.toFixed(2)}`
