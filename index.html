@@ -314,6 +314,7 @@
       <div class="kpi-label">Total Tickets Sold</div>
       <div class="kpi-val" id="kTickets">—</div>
       <div class="kpi-sub" id="kTicketsSub">across all theatres</div>
+      <div class="kpi-sub" id="kBookingFee" style="margin-top:3px">booking fee —</div>
     </div>
     <div class="kpi purple" style="padding:0;overflow:hidden">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;height:100%">
@@ -628,6 +629,7 @@ function renderKPIs() {
   document.getElementById("kIncomeSub").textContent    = `${theatres} theatres · ${activeData.length} transactions`;
   document.getElementById("kTickets").textContent    = totalTickets;
   document.getElementById("kTicketsSub").textContent = `across ${theatres} theatres`;
+  document.getElementById("kBookingFee").textContent = `booking fee $${(totalTickets * 0.50).toFixed(2)}`;
   const mvList     = sorted(byMovie);
   const secMovie   = mvList[1];
   const thirdMovie = mvList[2];
