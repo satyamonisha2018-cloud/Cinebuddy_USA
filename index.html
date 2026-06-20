@@ -303,10 +303,19 @@
       <div class="kpi-icon">💵</div>
       <div class="kpi-label">Total Income</div>
       <div class="kpi-val" id="kIncome">—</div>
-      <div style="display:flex;gap:12px;margin:5px 0 3px">
-        <span style="font-size:11px;color:var(--muted)">Gross&nbsp;<span id="kGrossIncome" style="color:#22c55e;font-weight:700">—</span></span>
-        <span style="font-size:11px;color:var(--muted)">Exp&nbsp;<span id="kExpenses" style="color:#ef4444;font-weight:700">—</span></span>
-        <span style="font-size:11px;color:var(--muted)">Bkg&nbsp;<span id="kBookingFeeExp" style="color:#ef4444;font-weight:700">—</span></span>
+      <div style="margin:6px 0 2px;display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;justify-content:space-between;font-size:11px">
+          <span style="color:var(--muted)">Gross</span>
+          <span id="kGrossIncome" style="color:#22c55e;font-weight:700">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px">
+          <span style="color:var(--muted)">Expenses</span>
+          <span id="kExpenses" style="color:#ef4444;font-weight:700">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px">
+          <span style="color:var(--muted)">Booking fee</span>
+          <span id="kBookingFeeExp" style="color:#ef4444;font-weight:700">—</span>
+        </div>
       </div>
       <div class="kpi-sub" id="kIncomeSub">net after expenses</div>
     </div>
