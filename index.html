@@ -279,8 +279,6 @@
     </select>
     <select id="filterMonth" onchange="applyFilters()">
       <option value="all">All Time (May 21+)</option>
-      <option value="2026-05">May 2026</option>
-      <option value="2026-06">Jun 2026</option>
     </select>
   </div>
 </div>
@@ -689,6 +687,19 @@ let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
   theatres.forEach(t => {
     const opt = document.createElement("option");
     opt.value = t; opt.textContent = t;
+    sel.appendChild(opt);
+  });
+})();
+
+// Auto-populate month dropdown from all data — always in sync
+(function populateMonthDropdown() {
+  const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const months = [...new Set([...RAW, ...CUSTOM_SALES].map(r => r.date.substring(0, 7)))].sort();
+  const sel = document.getElementById("filterMonth");
+  months.forEach(m => {
+    const [y, mo] = m.split("-");
+    const opt = document.createElement("option");
+    opt.value = m; opt.textContent = `${MONTH_SHORT[+mo - 1]} ${y}`;
     sel.appendChild(opt);
   });
 })();
