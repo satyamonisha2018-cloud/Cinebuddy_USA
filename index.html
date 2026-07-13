@@ -1079,9 +1079,13 @@ function renderMovieBars() {
 
 // ── Lasya ticket expenses, per month ──────────────────────────
 const LASYA_RATE = 3.50; // $ per Lasya ticket
-// Lasya tickets in one expense = amount / $3.50, rounded.
-// Jun 20 ($6.53) is a known exception, logged as a single ticket.
+// Lasya ticket count for one expense:
+//  1) use an explicit count in the description if present, e.g. "Lasya Tickets - 3 Tickets"
+//  2) else Jun 20 ($6.53) is a known exception, logged as a single ticket
+//  3) else fall back to amount / $3.50, rounded
 function lasyaTicketCount(e) {
+  const m = e.description.match(/(\d+)\s*ticket/i);
+  if (m) return parseInt(m[1], 10);
   if (e.date === "2026-06-20" && Math.abs(e.amount - 6.53) < 0.005) return 1;
   return Math.round(e.amount / LASYA_RATE);
 }
