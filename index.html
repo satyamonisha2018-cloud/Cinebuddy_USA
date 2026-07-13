@@ -1088,6 +1088,12 @@ function renderLasyaExpenses() {
     byMonth[m].amount += e.amount;
     byMonth[m].count  += 1;
   });
+  // tickets sold per month (all sales, unfiltered) — pairs cost with volume
+  const ticketsByMonth = {};
+  [...RAW, ...CUSTOM_SALES].forEach(r => {
+    const m = r.date.substring(0, 7);
+    ticketsByMonth[m] = (ticketsByMonth[m] || 0) + r.tickets;
+  });
   const total = lasya.reduce((s, e) => s + e.amount, 0);
   document.getElementById("lasyaTotal").textContent = "-$" + total.toFixed(2) + " all time";
   const months = Object.keys(byMonth).sort();
@@ -1096,10 +1102,12 @@ function renderLasyaExpenses() {
   el.innerHTML = months.map(m => {
     const [y, mo] = m.split("-");
     const d = byMonth[m];
+    const tix = ticketsByMonth[m] || 0;
     return `<div class="lasya-tile">
       <div class="m">${MONTH_SHORT[+mo - 1]} ${y}</div>
       <div class="v">-$${d.amount.toFixed(2)}</div>
       <div class="c">${d.count} ${d.count === 1 ? "entry" : "entries"}</div>
+      <div class="c" style="color:var(--teal)">${tix} tickets sold</div>
     </div>`;
   }).join("");
 }
