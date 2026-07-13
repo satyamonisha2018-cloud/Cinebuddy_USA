@@ -189,6 +189,13 @@
     .month-fill  { height:100%; border-radius:99px; }
     .month-val   { font-size:13px; font-weight:800; width:60px; text-align:right; flex-shrink:0; }
 
+    /* ── Lasya expense tiles ── */
+    .lasya-grid  { display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:12px; }
+    .lasya-tile  { background:rgba(239,68,68,.06); border:1px solid rgba(239,68,68,.16); border-radius:12px; padding:14px 15px; }
+    .lasya-tile .m { font-size:11px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+    .lasya-tile .v { font-size:22px; font-weight:800; color:var(--red); letter-spacing:-.03em; line-height:1; }
+    .lasya-tile .c { font-size:11px; color:var(--muted); margin-top:5px; }
+
     /* ── Add Transaction Modal ── */
     .modal-overlay {
       display:none; position:fixed; inset:0; z-index:999;
@@ -398,6 +405,22 @@
         <div style="position:relative;height:140px;margin-top:18px">
           <canvas id="monthChart"></canvas>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Lasya ticket expenses ── -->
+  <div class="row" id="lasya">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title">Lasya Ticket Expenses</div>
+          <div class="panel-sub">Monthly spend on Lasya tickets — all time</div>
+        </div>
+        <div class="panel-badge" id="lasyaTotal">—</div>
+      </div>
+      <div class="panel-body">
+        <div class="lasya-grid" id="lasyaMonths"></div>
       </div>
     </div>
   </div>
@@ -1054,12 +1077,40 @@ function renderMovieBars() {
 
 
 
+// ── Lasya ticket expenses, per month ──────────────────────────
+function renderLasyaExpenses() {
+  const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const lasya = [...BASE_EXPENSES, ...CUSTOM_EXPENSES].filter(e => /lasya/i.test(e.description));
+  const byMonth = {};
+  lasya.forEach(e => {
+    const m = e.date.substring(0, 7);
+    (byMonth[m] = byMonth[m] || { amount: 0, count: 0 });
+    byMonth[m].amount += e.amount;
+    byMonth[m].count  += 1;
+  });
+  const total = lasya.reduce((s, e) => s + e.amount, 0);
+  document.getElementById("lasyaTotal").textContent = "-$" + total.toFixed(2) + " all time";
+  const months = Object.keys(byMonth).sort();
+  const el = document.getElementById("lasyaMonths");
+  if (!months.length) { el.innerHTML = '<div class="panel-sub">No Lasya expenses recorded yet.</div>'; return; }
+  el.innerHTML = months.map(m => {
+    const [y, mo] = m.split("-");
+    const d = byMonth[m];
+    return `<div class="lasya-tile">
+      <div class="m">${MONTH_SHORT[+mo - 1]} ${y}</div>
+      <div class="v">-$${d.amount.toFixed(2)}</div>
+      <div class="c">${d.count} ${d.count === 1 ? "entry" : "entries"}</div>
+    </div>`;
+  }).join("");
+}
+
 // ── Render all ────────────────────────────────────────────────
 function renderAll(){
   renderKPIs();
   renderTrend();
   renderMonthly();
   renderMovieBars();
+  renderLasyaExpenses();
 }
 
 
