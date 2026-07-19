@@ -706,10 +706,23 @@ const RAW = [
   {date:"2026-07-16",theatre:"Deerfield",          movie:"Odyssey",            tickets:4,  amount:32.00, by:"Vamsi"},
   {date:"2026-07-16",theatre:"Wilder",             movie:"Odyssey",            tickets:3,  amount:28.00, by:"Vamsi"},
   {date:"2026-07-16",theatre:"Bellingham",         movie:"Odyssey",            tickets:1,  amount: 9.00, by:"Vamsi"},
+  {date:"2026-07-16",theatre:"Bellingham",         movie:"Odyssey",            tickets:3,  amount:27.00, by:"Vamsi"},
   // Jul 17
   {date:"2026-07-17",theatre:"Cielo Vista",        movie:"Lenin",              tickets:4,  amount:24.00, by:"Vamsi"},
   {date:"2026-07-17",theatre:"Waterford",          movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
   {date:"2026-07-17",theatre:"Village Park",       movie:"Idhayam Murali",     tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-07-17",theatre:"Huebner Oaks",       movie:"Minions & Monsters", tickets:2,  amount:14.00, by:"Vamsi"},
+  {date:"2026-07-17",theatre:"Solomon Pond",       movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-07-17",theatre:"Bellingham",         movie:"Odyssey",            tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-17",theatre:"Peoples Plaza",      movie:"Odyssey",            tickets:9,  amount:81.00, by:"Vamsi"},
+  // Jul 18
+  {date:"2026-07-18",theatre:"Naples",             movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Shiloh Crossing",    movie:"Odyssey",            tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Secaucus",           movie:"Idhayam Murali",     tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Hadley",             movie:"Dhamaal 4",          tickets:1,  amount:10.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Coldwater",          movie:"Odyssey",            tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Hacienda",           movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-07-18",theatre:"Houston Marquee",    movie:"Odyssey",            tickets:2,  amount:18.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
@@ -730,6 +743,7 @@ const BASE_EXPENSES  = [
   { date: "2026-07-10", description: "Lasya Tickets", amount:  7.00 },
   { date: "2026-07-11", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-12", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
+  { date: "2026-07-17", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
 ];
 let CUSTOM_EXPENSES  = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
 let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
