@@ -741,6 +741,36 @@ const RAW = [
   {date:"2026-07-19",theatre:"Fox",                movie:"Odyssey",            tickets:1,  amount: 9.00, by:"Vamsi"},
   {date:"2026-07-19",theatre:"Hadley",             movie:"Odyssey",            tickets:5,  amount:55.00, by:"Monisha"},
   {date:"2026-07-19",theatre:"Atlantic Station",   movie:"Minions & Monsters", tickets:2,  amount:22.00, by:"Vamsi"},
+  {date:"2026-07-19",theatre:"Solomon Pond",       movie:"Idhayam Murali",     tickets:9,  amount:81.00, by:"Vamsi"},
+  // Jul 20
+  {date:"2026-07-20",theatre:"Hunt Valley",        movie:"Odyssey",            tickets:3,  amount:33.00, by:"Vamsi"},
+  {date:"2026-07-20",theatre:"Coldwater",          movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
+  // Jul 21
+  {date:"2026-07-21",theatre:"Times Square",       movie:"Odyssey",            tickets:2,  amount:18.00, by:"Vamsi"},
+  // Jul 22
+  {date:"2026-07-22",theatre:"Huebner Oaks",       movie:"Jana Nayagan",       tickets:13, amount:94.00, by:"Vamsi"},
+  // Jul 23
+  {date:"2026-07-23",theatre:"Secaucus",           movie:"Jana Nayagan",       tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-23",theatre:"Solomon Pond",       movie:"Chennai Love Story", tickets:5,  amount:45.00, by:"Vamsi"},
+  {date:"2026-07-23",theatre:"Coldwater",          movie:"Chennai Love Story", tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-23",theatre:"Solomon Pond",       movie:"Chennai Love Story", tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-23",theatre:"Fox",                movie:"Jana Nayagan",       tickets:2,  amount:20.00, by:"Vamsi"},
+  // Jul 24
+  {date:"2026-07-24",theatre:"Solomon Pond",       movie:"Chennai Love Story", tickets:1,  amount: 9.00, by:"Vamsi"},
+  {date:"2026-07-24",theatre:"Huebner Oaks",       movie:"Jana Nayagan",       tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-07-24",theatre:"Greenwood",          movie:"Chennai Love Story", tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-07-24",theatre:"Greenwood",          movie:"Chennai Love Story", tickets:1,  amount:27.00, by:"Vamsi"},
+  // Jul 25
+  {date:"2026-07-25",theatre:"Shiloh Crossing",    movie:"Chennai Love Story", tickets:7,  amount:56.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"UA Galaxy",          movie:"Jana Nayagan",       tickets:2,  amount:14.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"Live Oak",           movie:"Odyssey",            tickets:2,  amount:15.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"Village Park",       movie:"Jana Nayagan",       tickets:1,  amount: 6.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"Perimeter Pointe",   movie:"Chennai Love Story", tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"Deerfield",          movie:"Jana Nayagan",       tickets:10, amount:90.00, by:"Vamsi"},
+  {date:"2026-07-25",theatre:"Solomon Pond",       movie:"Odyssey",            tickets:4,  amount:40.00, by:"Vamsi"},
+  // Jul 26
+  {date:"2026-07-26",theatre:"Hacienda",           movie:"Jana Nayagan",       tickets:1,  amount: 8.00, by:"Vamsi"},
+  {date:"2026-07-26",theatre:"Peoples Plaza",      movie:"Chennai Love Story", tickets:6,  amount:48.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
@@ -763,6 +793,10 @@ const BASE_EXPENSES  = [
   { date: "2026-07-12", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-17", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-19", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
+  { date: "2026-07-22", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
+  { date: "2026-07-24", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
+  { date: "2026-07-25", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
+  { date: "2026-07-25", description: "Lasya Tickets - 1 Ticket",  amount:  3.50 },
 ];
 let CUSTOM_EXPENSES  = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
 let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
