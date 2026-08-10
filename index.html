@@ -708,7 +708,7 @@ const RAW = [
   {date:"2026-07-12",theatre:"Coldwater",          movie:"Evil Dead Burn",     tickets:3,  amount:27.00, by:"Vamsi"},
   {date:"2026-07-12",theatre:"Greenwood",          movie:"Lenin",              tickets:4,  amount:32.00, by:"Vamsi"},
   {date:"2026-07-12",theatre:"Cielo Vista",        movie:"Lenin",              tickets:6,  amount:48.00, by:"Vamsi"},
-  {date:"2026-07-12",theatre:"Fairfield Common",   movie:"Lenin",              tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-07-12",theatre:"Fairfield Commons",  movie:"Lenin",              tickets:2,  amount:16.00, by:"Vamsi"},
   // Jul 13
   {date:"2026-07-13",theatre:"Greenwood",          movie:"Lenin",              tickets:4,  amount:32.00, by:"Vamsi"},
   // Jul 14
@@ -781,6 +781,7 @@ const RAW = [
   {date:"2026-07-27",theatre:"Atlantic Station",   movie:"Odyssey",            tickets:4,  amount:36.00, by:"Vamsi"},
   {date:"2026-07-27",theatre:"Solomon Pond",       movie:"Odyssey",            tickets:2,  amount:20.00, by:"Vamsi"},
   {date:"2026-07-27",theatre:"Solomon Pond",       movie:"Jana Nayagan",       tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-07-27",theatre:"Greenwood",          movie:"Chennai Love Story", tickets:5,  amount:40.00, by:"Vamsi"},
   // Jul 28
   {date:"2026-07-28",theatre:"Huebner Oaks",       movie:"Moana",              tickets:3,  amount:18.00, by:"Vamsi"},
   {date:"2026-07-28",theatre:"Solomon Pond",       movie:"Chennai Love Story", tickets:2,  amount:18.00, by:"Vamsi"},
@@ -823,6 +824,7 @@ const RAW = [
   {date:"2026-08-02",theatre:"Bellingham",         movie:"Spider-Man",         tickets:3,  amount:30.00, by:"Vamsi"},
   {date:"2026-08-02",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:3,  amount:30.00, by:"Vamsi"},
   {date:"2026-08-02",theatre:"Shiloh Crossing",    movie:"Spider-Man",         tickets:3,  amount:27.00, by:"Vamsi"},
+  {date:"2026-08-02",theatre:"Bellingham",         movie:"Spider-Man",         tickets:3,  amount:33.00, by:"Vamsi"},
   // Aug 3
   {date:"2026-08-03",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:2,  amount:20.00, by:"Vamsi"},
   {date:"2026-08-03",theatre:"Solomon Pond",       movie:"Jana Nayagan",       tickets:3,  amount:27.00, by:"Vamsi"},
@@ -846,6 +848,21 @@ const RAW = [
   {date:"2026-08-07",theatre:"Shiloh Crossing",    movie:"Spider-Man",         tickets:2,  amount:15.00, by:"Vamsi"},
   {date:"2026-08-07",theatre:"Huebner Oaks",       movie:"Spider-Man",         tickets:3,  amount:28.00, by:"Vamsi"},
   {date:"2026-08-07",theatre:"Huebner Oaks",       movie:"DC",                 tickets:2,  amount:16.00, by:"Vamsi"},
+  // Aug 8
+  {date:"2026-08-08",theatre:"Fairfield Commons",  movie:"DC",                 tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-08-08",theatre:"UA Galaxy",          movie:"Spider-Man",         tickets:6,  amount:54.00, by:"Vamsi"},
+  {date:"2026-08-08",theatre:"Solomon Pond",       movie:"Korean Kanakaraju",  tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-08-08",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:1,  amount:10.00, by:"Vamsi"},
+  // Aug 9
+  {date:"2026-08-09",theatre:"Peoples Plaza",      movie:"Spider-Man",         tickets:4,  amount:36.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Huebner Oaks",       movie:"Spider-Man",         tickets:3,  amount:27.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Peoples Plaza",      movie:"Korean Kanakaraju",  tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Commerce Center",    movie:"Spider-Man",         tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Village Park",       movie:"DC",                 tickets:1,  amount: 8.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Village Park",       movie:"DC",                 tickets:4,  amount:32.00, by:"Vamsi"},
+  // Aug 10
+  {date:"2026-08-10",theatre:"Atlantic Station",   movie:"Spider-Man",         tickets:3,  amount:33.00, by:"Vamsi"},
+  {date:"2026-08-10",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:4,  amount:40.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
@@ -872,6 +889,7 @@ const BASE_EXPENSES  = [
   { date: "2026-07-24", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-25", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-25", description: "Lasya Tickets - 1 Ticket",  amount:  3.50 },
+  { date: "2026-08-02", description: "Lasya Tickets - 5 Tickets", amount: 17.50 },
 ];
 let CUSTOM_EXPENSES  = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
 let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
