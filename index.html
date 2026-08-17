@@ -860,9 +860,38 @@ const RAW = [
   {date:"2026-08-09",theatre:"Commerce Center",    movie:"Spider-Man",         tickets:2,  amount:20.00, by:"Vamsi"},
   {date:"2026-08-09",theatre:"Village Park",       movie:"DC",                 tickets:1,  amount: 8.00, by:"Vamsi"},
   {date:"2026-08-09",theatre:"Village Park",       movie:"DC",                 tickets:4,  amount:32.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Village Park",       movie:"DC",                 tickets:8,  amount:64.00, by:"Vamsi"},
+  {date:"2026-08-09",theatre:"Perimeter Pointe",   movie:"DC",                 tickets:5,  amount:40.00, by:"Vamsi"},
   // Aug 10
   {date:"2026-08-10",theatre:"Atlantic Station",   movie:"Spider-Man",         tickets:3,  amount:33.00, by:"Vamsi"},
   {date:"2026-08-10",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:4,  amount:40.00, by:"Vamsi"},
+  {date:"2026-08-10",theatre:"Solomon Pond",       movie:"DC",                 tickets:3,  amount:27.00, by:"Vamsi"},
+  {date:"2026-08-10",theatre:"Battery Park",       movie:"Odyssey",            tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-10",theatre:"Huebner Oaks",       movie:"Spider-Man",         tickets:8,  amount:64.00, by:"Vamsi"},
+  // Aug 11
+  {date:"2026-08-11",theatre:"Village Park",       movie:"DC",                 tickets:5,  amount:35.00, by:"Vamsi"},
+  // Aug 12
+  {date:"2026-08-12",theatre:"Stonecrest",         movie:"Korean Kanakaraju",  tickets:2,  amount:20.00, by:"Vamsi"},
+  // Aug 13
+  {date:"2026-08-13",theatre:"Peoples Plaza",      movie:"DC",                 tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-13",theatre:"Deerfield",          movie:"Paw Patrol",         tickets:2,  amount:17.00, by:"Vamsi"},
+  // Aug 14
+  {date:"2026-08-14",theatre:"Village Park",       movie:"DC",                 tickets:2,  amount:16.00, by:"Vamsi"},
+  // Aug 15
+  {date:"2026-08-15",theatre:"Village Park",       movie:"DC",                 tickets:4,  amount:32.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Medlock",            movie:"Vishwanath & Sons",  tickets:4,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Solomon Pond",       movie:"Awarpan",            tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"UA Galaxy",          movie:"Spider-Man",         tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Coldwater",          movie:"Spider-Man",         tickets:2,  amount:20.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Solomon Pond",       movie:"Vishwanath & Sons",  tickets:2,  amount: 8.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Gilbert",            movie:"Spider-Man",         tickets:2,  amount:30.00, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Cielo Vista",        movie:"Spider-Man",         tickets:3,  amount:22.50, by:"Vamsi"},
+  {date:"2026-08-15",theatre:"Fox",                movie:"Vishwanath & Sons",  tickets:3,  amount: 6.00, by:"Vamsi"},
+  // Aug 16
+  {date:"2026-08-16",theatre:"Solomon Pond",       movie:"Spider-Man",         tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-16",theatre:"Alamo Quarry",       movie:"Toy Story 5",        tickets:2,  amount:13.00, by:"Vamsi"},
+  {date:"2026-08-16",theatre:"Solomon Pond",       movie:"Vishwanath & Sons",  tickets:2,  amount: 8.00, by:"Vamsi"},
+  {date:"2026-08-16",theatre:"Commerce Center",    movie:"Vishwanath & Sons",  tickets:2,  amount: 8.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
@@ -1142,7 +1171,8 @@ function renderMonthly() {
   const months = Object.keys(byMonth).sort();
   const vals   = months.map(m=>byMonth[m]);
   const maxVal = Math.max(...vals,1);
-  const labels = {"2026-05":"May","2026-06":"Jun","2026-07":"Jul"};
+  const MONTH_ABBR = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const labels = Object.fromEntries(months.map(m => [m, MONTH_ABBR[+m.split("-")[1] - 1]]));
 
   document.getElementById("monthSummary").innerHTML = months.map((m,i)=>`
     <div class="month-row">
