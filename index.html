@@ -901,6 +901,32 @@ const RAW = [
   {date:"2026-08-19",theatre:"Solomon Pond",       movie:"Vishwanath & Sons",  tickets:4,  amount:36.00, by:"Vamsi"},
   {date:"2026-08-19",theatre:"Solomon Pond",       movie:"Odyssey",            tickets:1,  amount: 8.00, by:"Vamsi"},
   {date:"2026-08-19",theatre:"Shiloh Crossing",    movie:"Vishwanath & Sons",  tickets:4,  amount:32.00, by:"Vamsi"},
+  // Aug 20
+  {date:"2026-08-20",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-08-20",theatre:"Village Park",       movie:"Vishwanath & Sons",  tickets:5,  amount:40.00, by:"Vamsi"},
+  {date:"2026-08-20",theatre:"Secaucus",           movie:"Irumudi",            tickets:3,  amount:27.00, by:"Vamsi"},
+  {date:"2026-08-20",theatre:"Commerce Center",    movie:"Khalifa",            tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-20",theatre:"Bellingham",         movie:"Irumudi",            tickets:2,  amount:27.00, by:"Vamsi"},
+  {date:"2026-08-20",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:3,  amount:27.00, by:"Vamsi"},
+  // Aug 21
+  {date:"2026-08-21",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:2,  amount:14.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"UA Galaxy",          movie:"Irumudi",            tickets:4,  amount:36.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Shiloh Crossing",    movie:"Irumudi",            tickets:1,  amount: 8.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Shiloh Crossing",    movie:"Vishwanath & Sons",  tickets:1,  amount: 9.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Shiloh Crossing",    movie:"BKU",                tickets:6,  amount:54.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Shiloh Crossing",    movie:"Vishwanath & Sons",  tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-08-21",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:1,  amount: 7.00, by:"Vamsi"},
+  // Aug 22
+  {date:"2026-08-22",theatre:"Shiloh Crossing",    movie:"Irumudi",            tickets:3,  amount:24.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Fox",                movie:"Irumudi",            tickets:2,  amount:17.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Solomon Pond",       movie:"Vishwanath & Sons",  tickets:2,  amount:14.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Kingstowne",         movie:"BKU",                tickets:7,  amount:64.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Commerce Center",    movie:"BKU",                tickets:2,  amount:18.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"UA Galaxy",          movie:"BKU",                tickets:8,  amount:60.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:6,  amount:54.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Shiloh Crossing",    movie:"Vishwanath & Sons",  tickets:2,  amount:16.00, by:"Vamsi"},
+  {date:"2026-08-22",theatre:"Solomon Pond",       movie:"Irumudi",            tickets:6,  amount:54.00, by:"Vamsi"},
 ];
 
 const PALETTE = ["#f59e0b","#3b82f6","#14b8a6","#a78bfa","#ef4444","#22c55e","#f97316","#ec4899","#06b6d4"];
@@ -928,6 +954,9 @@ const BASE_EXPENSES  = [
   { date: "2026-07-25", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
   { date: "2026-07-25", description: "Lasya Tickets - 1 Ticket",  amount:  3.50 },
   { date: "2026-08-02", description: "Lasya Tickets - 5 Tickets", amount: 17.50 },
+  { date: "2026-08-15", description: "Lasya Tickets - 1 Ticket",  amount:  3.50 },
+  { date: "2026-08-20", description: "Lasya Tickets - 1 Ticket",  amount:  6.00 },
+  { date: "2026-08-21", description: "Lasya Tickets - 2 Tickets", amount:  7.00 },
 ];
 let CUSTOM_EXPENSES  = JSON.parse(localStorage.getItem("cb_expenses") || "[]");
 let CUSTOM_SALES     = JSON.parse(localStorage.getItem("cb_custom")   || "[]");
